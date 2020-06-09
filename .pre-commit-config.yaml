@@ -1,0 +1,30 @@
+default_language_version:
+    python: python3.6
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/psf/black
+    rev: 19.3b0
+    hooks:
+    -   id: black
+-   repo: local
+    hooks:
+    - id: pylint
+      name: PyLint
+      stages: [push]
+      language: system
+      entry: ci/pylint_score.py --fail-under 5.0 --rcfile=pylint.rc binalyzer_core
+      types: [python]
+      pass_filenames: false
+      log_file: pylint.log
+    - id: pytest-cov
+      name: Unit Tests
+      stages: [push]
+      language: system
+      entry: python3 -m pytest tests --cov=binalyzer_core --cov-fail-under=20
+      types: [python]
+      pass_filenames: false
