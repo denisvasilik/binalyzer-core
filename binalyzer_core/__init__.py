@@ -13,7 +13,7 @@ name = "binalyzer_core"
 
 __tag__ = ""
 __build__ = 0
-__version__ = "{}{}".format(__tag__, __build__)
+__version__ = "{}".format(__tag__)
 __commit__ = "00000000"
 
 from .binalyzer import (
