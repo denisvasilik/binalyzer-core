@@ -29,7 +29,10 @@ install-from-test-pypi:
 	pip3 install --upgrade -i https://test.pypi.org/simple/ binalyzer_core
 
 upload-to-test-pypi: package
-	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+	python3 -m twine upload --repository testpypi dist/*
+
+upload-to-pypi: package
+	python3 -m twine upload --repository pypi dist/*
 
 clean:
 	(rm -rf pyflakes.log \
