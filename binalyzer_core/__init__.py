@@ -16,5 +16,17 @@ __build__ = 0
 __version__ = "{}{}".format(__tag__, __build__)
 __commit__ = "00000000"
 
-from .binalyzer_core import Binalyzer, BindingContext
-from .template import ByteOrder, AddressingMode, ResolvableValue, Template, Sizing
+from .binalyzer import (
+    Binalyzer,
+    BindingContext,
+    DataProvider,
+    ZeroDataProvider,
+    TemplateProvider,
+)
+from .template import (
+    ByteOrder,
+    AddressingMode,
+    ResolvableValue,
+    Template,
+    Sizing,
+)

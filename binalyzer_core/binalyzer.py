@@ -10,7 +10,38 @@
 """
 import io
 
-from .provider import BufferedIODataProvider
+class TemplateProvider(object):
+    @property
+    def template(self):
+        pass
+
+    @template.setter
+    def template(self, value):
+        pass
+
+
+class DataProvider(object):
+    @property
+    def data(self):
+        pass
+
+    @data.setter
+    def data(self, value):
+        pass
+
+
+class ZeroDataProvider(DataProvider):
+
+    def __init__(self, size):
+        self._stream = io.BytesIO(bytes([0] * size))
+
+    @property
+    def data(self):
+        return self._stream
+
+    @data.setter
+    def data(self, value):
+        raise NotImplementedError()
 
 
 class Binalyzer(object):
@@ -21,14 +52,8 @@ class Binalyzer(object):
     :param stream: a binary data stream that sould be bound to the template
     """
 
-    def __init__(self, template=None, stream=None):
-        self._binding_context = BindingContext(template, stream)
-
-        if template:
-            self.template = template
-
-        if stream:
-            self.stream = stream
+    def __init__(self, template_provider: TemplateProvider, data_provider: DataProvider):
+        self._binding_context = BindingContext(template_provider, data_provider)
 
     @property
     def template(self):
@@ -42,23 +67,34 @@ class Binalyzer(object):
     @template.setter
     def template(self, value):
         self._binding_context.template = value
-        self._binding_context.template.binding_context = self._binding_context
-        self._binding_context.template.propagate()
-        if self.stream is None:
-            self.stream = io.BytesIO(bytes([0] * value.size.value))
 
     @property
-    def stream(self):
+    def template_provider(self):
+        return self._binding_context.template_provider
+
+    @template_provider.setter
+    def template_provider(self, value):
+        self._binding_context.template_provider = value
+
+    @property
+    def data(self):
         """A buffered IO stream that is bound to the corresponding
         :attr:`~binalyzer.binalyzer.Binalyzer.template`.
         In case a new stream is assigned it gets rebound to the template.
         """
-        return self._binding_context.stream
+        return self._binding_context.data
 
-    @stream.setter
-    def stream(self, value):
-        self._binding_context.stream = value
-        self._binding_context.provider.stream = value
+    @data.setter
+    def data(self, value):
+        self._binding_context.data = value
+
+    @property
+    def data_provider(self):
+        return self._binding_context.data_provider
+
+    @data_provider.setter
+    def data_provider(self, value):
+        self._binding_context.data_provider = value
 
 
 class BindingContext(object):
@@ -71,14 +107,40 @@ class BindingContext(object):
     :param stream: the stream to provide by the context
     """
 
-    def __init__(self, template=None, stream=None):
+    def __init__(self, template_provider: TemplateProvider, data_provider: DataProvider):
         #: The template to provide by the context. It usually is the *top-most*
         #: or *root* template.
-        self.template = template
-
-        #: The stream to provide by the context
-        self.stream = stream
+        self.template_provider = template_provider
 
         #: The data provider to use.
         #: Defaults to :class:`~binalyzer.provider.BufferedIODataProvider`.
-        self.provider = BufferedIODataProvider(self)
+        self.data_provider = data_provider
+
+    @property
+    def template(self):
+        """A :class:`~binalyzer.template.Template` that is bound to the
+        corresponding :attr:`~binalyzer.binalyzer.Binalyzer.stream`. In
+        case a new template is assigned it gets rebound to the buffered IO
+        stream.
+        """
+        return self.template_provider.template;
+
+    @template.setter
+    def template(self, value):
+        self.template_provider.template = value
+        self.template_provider.template.binding_context = self
+        # FIXME: Move propagate to template, it should be called if binding
+        #        context changes.
+        self.template_provider.template.propagate()
+
+    @property
+    def data(self):
+        """A buffered IO stream that is bound to the corresponding
+        :attr:`~binalyzer.binalyzer.Binalyzer.template`.
+        In case a new stream is assigned it gets rebound to the template.
+        """
+        return self.data_provider.data
+
+    @data.setter
+    def data(self, value):
+        self.data_provider.data = value
