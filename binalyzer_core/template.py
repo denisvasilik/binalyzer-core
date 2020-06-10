@@ -88,14 +88,14 @@ class Template(object):
                   :py:attr:`~binalyzer.template.Template.size` of the template.
         """
         if self.binding_context:
-            return self.binding_context.provider.read(self)
+            return self.binding_context.data_provider.read(self)
         else:
             return self._value
 
     @value.setter
     def value(self, value):
         if self.binding_context:
-            self.binding_context.provider.write(self, value)
+            self.binding_context.data_provider.write(self, value)
         else:
             self._value = value
 

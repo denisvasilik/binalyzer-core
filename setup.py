@@ -14,7 +14,7 @@ setuptools.setup(
     author_email="contact@denisvasilik.com",
     url="https://www.denisvasilik.com/binalyzer",
     project_urls={
-        "Bug Tracker": "https://github.com/denisvasilik/binalyzer/issues",
+        "Bug Tracker": "https://github.com/denisvasilik/binalyzer/issues/",
         "Documentation": "https://binalyzer.readthedocs.io/en/latest/",
         "Source Code": "https://github.com/denisvasilik/binalyzer/",
     },

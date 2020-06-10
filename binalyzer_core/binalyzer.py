@@ -10,6 +10,7 @@
 """
 import io
 
+
 class TemplateProvider(object):
     @property
     def template(self):
@@ -29,19 +30,11 @@ class DataProvider(object):
     def data(self, value):
         pass
 
+    def read(self, template):
+        pass
 
-class ZeroDataProvider(DataProvider):
-
-    def __init__(self, size):
-        self._stream = io.BytesIO(bytes([0] * size))
-
-    @property
-    def data(self):
-        return self._stream
-
-    @data.setter
-    def data(self, value):
-        raise NotImplementedError()
+    def write(self, template, value):
+        pass
 
 
 class Binalyzer(object):
@@ -52,7 +45,7 @@ class Binalyzer(object):
     :param stream: a binary data stream that sould be bound to the template
     """
 
-    def __init__(self, template_provider: TemplateProvider, data_provider: DataProvider):
+    def __init__(self, template_provider=None, data_provider=None):
         self._binding_context = BindingContext(template_provider, data_provider)
 
     @property
@@ -107,7 +100,9 @@ class BindingContext(object):
     :param stream: the stream to provide by the context
     """
 
-    def __init__(self, template_provider: TemplateProvider, data_provider: DataProvider):
+    def __init__(
+        self, template_provider: TemplateProvider, data_provider: DataProvider
+    ):
         #: The template to provide by the context. It usually is the *top-most*
         #: or *root* template.
         self.template_provider = template_provider
@@ -123,7 +118,7 @@ class BindingContext(object):
         case a new template is assigned it gets rebound to the buffered IO
         stream.
         """
-        return self.template_provider.template;
+        return self.template_provider.template
 
     @template.setter
     def template(self, value):
