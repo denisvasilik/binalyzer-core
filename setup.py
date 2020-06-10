@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 __tag__ = ""
 __build__ = 0
-__version__ = "{}{}".format(__tag__, __build__)
+__version__ = "{}{}".format(__tag__)
 
 setuptools.setup(
     name="binalyzer_core",
