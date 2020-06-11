@@ -8,46 +8,9 @@ from binalyzer_core import (
     ByteOrder,
     AddressingMode,
     ResolvableValue,
-    TemplateProvider,
-    DataProvider,
+    SimpleTemplateProvider,
+    SimpleDataProvider,
 )
-
-class TemplateProviderMock(TemplateProvider):
-    def __init__(self, template):
-        self._template = template
-
-    @property
-    def template(self):
-        return self._template
-
-    @template.setter
-    def template(self, value):
-        self._template = value
-
-
-class DataProviderMock(DataProvider):
-    def __init__(self, data):
-        self._data = data
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, value):
-        self._data = value
-
-    def read(self, template):
-        absolute_address = template.absolute_address.value
-        size = template.size.value
-        self.data.seek(absolute_address)
-        return self.data.read(size)
-
-    def write(self, template, value):
-        self.data.seek(template.absolute_address.value)
-        self.data.write(value)
-
-
 
 def test_default_instantiation():
     template = Template()
@@ -78,8 +41,8 @@ def test_parent_instantiation():
 
 def test_read_value():
     buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     layout = template_provider_mock.template
     layout.binding_context = binding_context
@@ -94,8 +57,8 @@ def test_read_value():
 
 def test_write_value():
     buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     layout = template_provider_mock.template
     layout.offset = ResolvableValue(2)
@@ -111,8 +74,8 @@ def test_write_value():
 
 def test_read_offset_lower_boundary():
     buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     lower_boundary_area = template_provider_mock.template
     lower_boundary_area.offset = ResolvableValue(0)
@@ -125,8 +88,8 @@ def test_read_offset_lower_boundary():
 
 def test_read_offset_upper_boundary():
     buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     upper_boundary_area = template_provider_mock.template
     upper_boundary_area.offset = ResolvableValue(7)
@@ -147,8 +110,8 @@ def test_read_offset_upper_boundary():
 
 def test_read_at_offset_lower_boundary():
     buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     lower_boundary_field = template_provider_mock.template
     lower_boundary_field.offset = ResolvableValue(0)
@@ -159,8 +122,8 @@ def test_read_at_offset_lower_boundary():
 
 def test_read_at_offset_upper_boundary():
     buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     upper_boundary_field = template_provider_mock.template
     upper_boundary_field = Template()
@@ -172,8 +135,8 @@ def test_read_at_offset_upper_boundary():
 
 def test_read_size_min_boundary():
     buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     min_boundary_field = template_provider_mock.template
     min_boundary_field.offset = ResolvableValue(0)
@@ -184,8 +147,8 @@ def test_read_size_min_boundary():
 
 def test_read_size_max_boundary():
     buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     max_boundary_field = template_provider_mock.template
     max_boundary_field.offset = ResolvableValue(0)
@@ -197,8 +160,8 @@ def test_read_size_max_boundary():
 def test_read_walkthrough():
     byte_values = list(range(8))
     buffered_stream = io.BytesIO(bytes(byte_values))
-    data_provider_mock = DataProviderMock(buffered_stream)
-    template_provider_mock = TemplateProviderMock(Template())
+    data_provider_mock = SimpleDataProvider(buffered_stream)
+    template_provider_mock = SimpleTemplateProvider(Template())
     binding_context = BindingContext(template_provider_mock, data_provider_mock)
     for offset in byte_values:
         field = template_provider_mock.template

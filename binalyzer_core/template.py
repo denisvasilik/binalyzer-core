@@ -9,7 +9,6 @@
     :license: MIT
 """
 from .utils import classproperty_support, classproperty
-from .binalyzer import BindingContext
 
 
 class Template(object):
@@ -459,10 +458,10 @@ class Size(ResolvableValue):
             return next_sibling.offset.value - self.template.offset.value
         elif self.template.parent:
             return self.template.parent.size.value - self.template.offset.value
-        elif self.template.binding_context.stream:
-            stream = self.template.binding_context.stream
-            stream.seek(0, 2)
-            return stream.tell()
+        elif self.template.binding_context.data:
+            data = self.template.binding_context.data
+            data.seek(0, 2)
+            return data.tell()
         else:
             return 0
 
