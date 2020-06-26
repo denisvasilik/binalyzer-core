@@ -20,16 +20,18 @@ from .binalyzer import (
     Binalyzer
 )
 from .template import (
-    Offset,
-    Size,
+    Template,
+)
+from .properties import (
+    AddressingMode,
     Boundary,
     ByteOrder,
-    AddressingMode,
-    ResolvableValue,
-    Template,
-    Sizing,
-    PaddingAfter,
+    Offset,
     PaddingBefore,
+    PaddingAfter,
+    ResolvableValue,
+    Size,
+    Sizing,
 )
 from .context import (
     BindingContext,

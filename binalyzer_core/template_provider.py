@@ -3,11 +3,11 @@ from .template import Template
 
 class TemplateProviderBase(object):
     @property
-    def template(self):
+    def template(self) -> Template:
         pass
 
     @template.setter
-    def template(self, value):
+    def template(self, value: Template):
         pass
 
 
@@ -16,11 +16,11 @@ class SimpleTemplateProvider(TemplateProviderBase):
         self._template = template
 
     @property
-    def template(self):
+    def template(self) -> Template:
         return self._template
 
     @template.setter
-    def template(self, value):
+    def template(self, value: Template):
         self._template = value
 
 
