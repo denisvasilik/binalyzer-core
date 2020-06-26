@@ -1,3 +1,6 @@
+from anytree import find_by_attr
+from anytree.util import rightsibling
+
 from .utils import classproperty_support, classproperty
 
 
@@ -185,7 +188,7 @@ class ResolvableValue(object):
         return self._interprete(self._get_reference_raw())
 
     def _get_reference_raw(self):
-        return self.template.root.find(self.ref_id).value
+        return find_by_attr(self.template.root, self.ref_id).value
 
     def _interprete(self, bytes):
         if self.byte_order == ByteOrder.LittleEndian:
@@ -286,7 +289,7 @@ class Size(ResolvableValue):
         self._value = value
 
     def _calculate_stretched_size(self):
-        next_sibling = self.template.get_next_sibling()
+        next_sibling = rightsibling(self.template)
         if next_sibling:
             return next_sibling.offset.value - self.template.offset.value
         elif self.template.parent:

@@ -26,7 +26,7 @@ def test_default_instantiation():
     assert template.padding_after.value == 0
 
 
-def test_add_child():
+def test_dynamic_child_attribute_creation():
     node_parent = Template()
     node_child = Template()
     node_child.name = "child_node"

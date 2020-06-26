@@ -8,6 +8,8 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
+from anytree import NodeMixin
+from anytree.util import leftsibling, rightsibling
 
 
 class classproperty:
@@ -70,3 +72,28 @@ def classproperty_support(cls):
         pass
 
     return Wrapper
+
+
+def siblings(node: NodeMixin):
+    siblings = []
+    siblings.extend(leftsiblings(node))
+    siblings.extend(rightsiblings(node))
+    return siblings
+
+
+def leftsiblings(node: NodeMixin):
+    siblings = []
+    sibling = leftsibling(node)
+    while sibling:
+        siblings.append(sibling)
+        sibling = leftsibling(sibling)
+    return siblings
+
+
+def rightsiblings(node: NodeMixin):
+    siblings = []
+    sibling = rightsibling(node)
+    while sibling:
+        siblings.append(sibling)
+        sibling = rightsibling(sibling)
+    return siblings
