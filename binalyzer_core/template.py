@@ -8,6 +8,9 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
+from anytree import NodeMixin, find_by_attr
+from anytree.util import leftsibling, rightsibling
+
 from .properties import (
     AddressingMode,
     Boundary,
@@ -20,21 +23,22 @@ from .properties import (
 )
 
 
-class Template(object):
+class Template(NodeMixin, object):
     """This class implements the concept described in :ref:`template`. It is
     used to establish the template object model that makes binary data
     accessible.
     """
 
-    def __init__(self, id=None, parent=None):
+    def __init__(self, name=None, parent=None, children=None, **kwargs):
         #: The unique identifier of the template
-        self.id = id
+        self.name = name
 
         #: Parent of the template (optional)
         self.parent = parent
 
         #: Children of the template
-        self.children = []
+        if children:
+            self.children = children
 
         #: :class:`~binalyzer.template.AddressingMode` of the template
         self.addressing_mode = AddressingMode.Relative
@@ -59,17 +63,10 @@ class Template(object):
 
         #: :class:`~binalyzer.binalyzer.BindingContext` of the template
         self.binding_context = None
-
         if self.parent:
             self.binding_context = self.parent.binding_context
-            self.parent.add_child(self)
-        self._value = bytes([0])
 
-    @property
-    def root(self):
-        if self.parent is None:
-            return self
-        return self.parent.root
+        self._value = bytes([0])
 
     @property
     def absolute_address(self):
@@ -107,31 +104,11 @@ class Template(object):
         else:
             self._value = value
 
-    def add_child(self, value):
-        """Add a template as children to this template.
-        """
-        self.children.append(value)
-        if value.id:
-            self.__dict__[value.id.replace("-", "_")] = value
-        if self.binding_context:
-            self.propagate()
-
-    def find(self, ref_id):
-        """Find an element using the given ``ref_id``. Returns the element if
-        found; otherwise ``None``.
-
-        .. note:: The :py:attr:`~binalyzer.template.Template.find` method just searches
-                  for the first occurrence of an ``ref_id``. If an identical
-                  ``ref_id`` exists multiple times, the first found will be returned.
-        """
-        return_value = None
-        for child in self.children:
-            if child.id == ref_id:
-                return child
-            return_value = child.find(ref_id)
-            if return_value:
-                return return_value
-        return return_value
+    def _pre_attach(self, parent):
+        if self.name:
+            parent.__dict__[self.name.replace("-", "_")] = self
+        if parent.binding_context:
+            parent.propagate()
 
     def propagate(self):
         """Propagates the binding context top-down from this element to its
@@ -141,42 +118,45 @@ class Template(object):
             child.binding_context = self.binding_context
             child.propagate()
 
+    def find(self, ref_id):
+        return find_by_attr(self, name="name", value=ref_id)
+
     def get_siblings(self):
-        return [sibling for sibling in self.parent.children if sibling != self]
+        return siblings
 
     def get_previous_sibling(self):
-        previous_siblings = self.get_previous_siblings()
-        if previous_siblings:
-            return previous_siblings[-1]
-        else:
-            return None
+        return leftsibling(self)
 
     def get_previous_siblings(self):
-        if not self.parent:
-            return []
-        return [
-            sibling
-            for sibling in self.parent.children
-            if sibling != self and sibling.offset.value < self.offset.value
-        ]
+        return leftsiblings(self)
 
     def get_next_sibling(self):
-        next_siblings = self.get_next_siblings()
-        if next_siblings:
-            return next_siblings[0]
-        else:
-            return None
+        return rightsibling(self)
 
     def get_next_siblings(self):
-        if not self.parent:
-            return []
-        return [
-            sibling
-            for sibling in self.parent.children
-            if sibling != self and sibling.offset.value > self.offset.value
-        ]
+        return rightsiblings(self)
 
-def get_root_template(template: Template):
-    if template.parent is None:
-        return template
-    return template.parent.root
+
+def siblings(node: NodeMixin):
+    siblings = []
+    siblings.extend(leftsiblings)
+    siblings.extend(rightsiblings)
+    return siblings
+
+
+def leftsiblings(node: NodeMixin):
+    siblings = []
+    sibling = leftsibling(node)
+    while sibling:
+        siblings.append(sibling)
+        sibling = leftsibling(sibling)
+    return siblings
+
+
+def rightsiblings(node: NodeMixin):
+    siblings = []
+    sibling = rightsibling(node)
+    while sibling:
+        siblings.append(sibling)
+        sibling = rightsibling(sibling)
+    return siblings
