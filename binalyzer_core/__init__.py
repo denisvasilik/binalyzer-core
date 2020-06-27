@@ -38,12 +38,12 @@ from .context import (
 )
 from .template_provider import (
     TemplateProviderBase,
-    SimpleTemplateProvider,
+    TemplateProvider,
     EmptyTemplateProvider,
 )
 from .data_provider import (
     DataProviderBase,
-    SimpleDataProvider,
+    DataProvider,
     ZeroDataProvider,
 )
 from .utils import (

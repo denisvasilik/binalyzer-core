@@ -11,7 +11,7 @@ class TemplateProviderBase(object):
         pass
 
 
-class SimpleTemplateProvider(TemplateProviderBase):
+class TemplateProvider(TemplateProviderBase):
     def __init__(self, template):
         self._template = template
 
@@ -24,7 +24,7 @@ class SimpleTemplateProvider(TemplateProviderBase):
         self._template = value
 
 
-class EmptyTemplateProvider(SimpleTemplateProvider):
+class EmptyTemplateProvider(TemplateProvider):
     def __init__(self, template=None):
         if template is None:
             template = Template()

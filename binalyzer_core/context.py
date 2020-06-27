@@ -65,3 +65,10 @@ class BindingContext(object):
     @data.setter
     def data(self, value):
         self.data_provider.data = value
+
+
+class EmptyBindingContext(BindingContext):
+
+    def __init__(self):
+        super(EmptyBindingContext, self).__init__(
+            EmptyTemplateProvider(), ZeroDataProvider())

@@ -4,9 +4,9 @@ import io
 from binalyzer_core import (
     Binalyzer,
     BindingContext,
-    SimpleDataProvider,
+    DataProvider,
     ZeroDataProvider,
-    SimpleTemplateProvider,
+    TemplateProvider,
     EmptyTemplateProvider,
     ZeroDataProvider,
     Template,
@@ -64,7 +64,7 @@ def test_binalyzer_set_template_provider():
 def test_binalyzer_set_template():
     template_mock1 = Template()
     template_mock2 = Template()
-    template_provider = SimpleTemplateProvider(template_mock1)
+    template_provider = TemplateProvider(template_mock1)
     binalyzer = Binalyzer()
     binalyzer.template_provider = template_provider
     binalyzer.template = template_mock2
@@ -82,7 +82,7 @@ def test_binalyzer_set_data_provider():
 def test_binalyzer_set_data():
     data_mock1 = object()
     data_mock2 = object()
-    data_provider = SimpleDataProvider(data_mock1)
+    data_provider = DataProvider(data_mock1)
     binalyzer = Binalyzer()
     binalyzer.data_provider = data_provider
     binalyzer.data = data_mock2
