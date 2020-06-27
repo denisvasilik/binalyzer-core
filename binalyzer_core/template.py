@@ -31,8 +31,6 @@ class Template(NodeMixin, object):
     """
 
     def __init__(self, name=None, parent=None, children=None, **kwargs):
-        self._value = bytes([0])
-
         self._binding_context = BackedBindingContext(self)
 
         #: The unique identifier of the template
@@ -90,17 +88,12 @@ class Template(NodeMixin, object):
         .. note:: The size of the buffered IO stream must match the
                   :py:attr:`~binalyzer.template.Template.size` of the template.
         """
-        if self.binding_context:
-            return self.binding_context.data_provider.read(self)
-        else:
-            return self._value
+        return self.binding_context.data_provider.read(self)
+
 
     @value.setter
     def value(self, value):
-        if self.binding_context:
-            self.binding_context.data_provider.write(self, value)
-        else:
-            self._value = value
+        self.binding_context.data_provider.write(self, value)
 
     @property
     def binding_context(self):

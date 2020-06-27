@@ -21,10 +21,10 @@ class TemplateProvider(TemplateProviderBase):
         self._template = value
 
 
-class EmptyTemplateProvider(TemplateProvider):
+class PlainTemplateProvider(TemplateProvider):
     def __init__(self, template=None):
         from .template import Template
 
         if template is None:
             template = Template()
-        super(EmptyTemplateProvider, self).__init__(template)
+        super(PlainTemplateProvider, self).__init__(template)

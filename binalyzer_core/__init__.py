@@ -39,7 +39,7 @@ from .context import (
 from .template_provider import (
     TemplateProviderBase,
     TemplateProvider,
-    EmptyTemplateProvider,
+    PlainTemplateProvider,
 )
 from .data_provider import (
     DataProviderBase,
