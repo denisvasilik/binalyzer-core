@@ -1,10 +1,10 @@
 from .template_provider import (
     TemplateProviderBase,
-    EmptyTemplateProvider,
+    TemplateProvider,
 )
 from .data_provider import (
     DataProviderBase,
-    ZeroDataProvider,
+    ZeroedDataProvider,
 )
 
 
@@ -28,14 +28,6 @@ class BindingContext(object):
         #: The data provider to use.
         #: Defaults to :class:`~binalyzer.provider.BufferedIODataProvider`.
         self.data_provider = data_provider
-
-        if self.template_provider is None:
-            self.template_provider = EmptyTemplateProvider()
-
-        if self.data_provider is None:
-            self.data_provider = ZeroDataProvider(
-                self.template_provider.template.size.value
-            )
 
     @property
     def template(self):
@@ -64,8 +56,8 @@ class BindingContext(object):
         self.data_provider.data = value
 
 
-class EmptyBindingContext(BindingContext):
+class BackedBindingContext(BindingContext):
 
-    def __init__(self):
-        super(EmptyBindingContext, self).__init__(
-            EmptyTemplateProvider(), ZeroDataProvider())
+    def __init__(self, template):
+        super(BackedBindingContext, self).__init__(
+            TemplateProvider(template), ZeroedDataProvider())

@@ -21,6 +21,7 @@ from .properties import (
     Size,
     Sizing,
 )
+from .context import BackedBindingContext
 
 
 class Template(NodeMixin, object):
@@ -31,7 +32,8 @@ class Template(NodeMixin, object):
 
     def __init__(self, name=None, parent=None, children=None, **kwargs):
         self._value = bytes([0])
-        self._binding_context = None
+
+        self._binding_context = BackedBindingContext(self)
 
         #: The unique identifier of the template
         self.name = name

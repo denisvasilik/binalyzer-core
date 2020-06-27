@@ -11,6 +11,8 @@
 import io
 
 from .context import BindingContext
+from .template_provider import EmptyTemplateProvider
+from .data_provider import ZeroedDataProvider
 
 
 class Binalyzer(object):
@@ -22,7 +24,15 @@ class Binalyzer(object):
     """
 
     def __init__(self, template_provider=None, data_provider=None):
-        self._binding_context = BindingContext(template_provider, data_provider)
+        _template_provider = template_provider
+        if _template_provider is None:
+            _template_provider = EmptyTemplateProvider()
+
+        _data_provider = data_provider
+        if _data_provider is None:
+            _data_provider = ZeroedDataProvider(_template_provider.template.size.value)
+
+        self._binding_context = BindingContext(_template_provider, _data_provider)
 
     @property
     def template(self):

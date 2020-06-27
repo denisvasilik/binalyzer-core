@@ -44,7 +44,8 @@ from .template_provider import (
 from .data_provider import (
     DataProviderBase,
     DataProvider,
-    ZeroDataProvider,
+    BufferedIODataProvider,
+    ZeroedDataProvider,
 )
 from .utils import (
     siblings,
