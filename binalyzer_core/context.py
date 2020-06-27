@@ -24,6 +24,7 @@ class BindingContext(object):
         #: The template to provide by the context. It usually is the *top-most*
         #: or *root* template.
         self.template_provider = template_provider
+        self.template_provider.template.binding_context = self
 
         #: The data provider to use.
         #: Defaults to :class:`~binalyzer.provider.BufferedIODataProvider`.
