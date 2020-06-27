@@ -1,6 +1,3 @@
-from .template import Template
-
-
 class TemplateProviderBase(object):
     @property
     def template(self):
@@ -11,7 +8,7 @@ class TemplateProviderBase(object):
         pass
 
 
-class SimpleTemplateProvider(TemplateProviderBase):
+class TemplateProvider(TemplateProviderBase):
     def __init__(self, template):
         self._template = template
 
@@ -24,8 +21,10 @@ class SimpleTemplateProvider(TemplateProviderBase):
         self._template = value
 
 
-class EmptyTemplateProvider(SimpleTemplateProvider):
+class PlainTemplateProvider(TemplateProvider):
     def __init__(self, template=None):
+        from .template import Template
+
         if template is None:
             template = Template()
-        super(EmptyTemplateProvider, self).__init__(template)
+        super(PlainTemplateProvider, self).__init__(template)

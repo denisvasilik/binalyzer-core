@@ -17,7 +17,7 @@ class DataProviderBase(object):
         pass
 
 
-class SimpleDataProvider(DataProviderBase):
+class DataProvider(DataProviderBase):
     def __init__(self, data):
         self._data = data
 
@@ -40,6 +40,13 @@ class SimpleDataProvider(DataProviderBase):
         self.data.write(value)
 
 
-class ZeroDataProvider(SimpleDataProvider):
+class BufferedIODataProvider(DataProvider):
+
+    def __init__(self, size=0, value=0):
+        super(BufferedIODataProvider, self).__init__(
+            io.BytesIO(bytes([value] * size)))
+
+
+class ZeroedDataProvider(BufferedIODataProvider):
     def __init__(self, size=0):
-        super(ZeroDataProvider, self).__init__(io.BytesIO(bytes([0] * size)))
+        super(ZeroedDataProvider, self).__init__(size, 0)
