@@ -50,9 +50,6 @@ class BindingContext(object):
     def template(self, value):
         self.template_provider.template = value
         self.template_provider.template.binding_context = self
-        # FIXME: Move propagate to template, it should be called if binding
-        #        context changes.
-        self.template_provider.template.propagate()
 
     @property
     def data(self):

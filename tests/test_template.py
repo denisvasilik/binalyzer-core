@@ -47,9 +47,10 @@ def test_read_value():
     binding_context = BindingContext(
         template_provider_mock, data_provider_mock)
     layout = template_provider_mock.template
+    layout.name = "layout"
     layout.binding_context = binding_context
     layout.offset = ResolvableValue(2)
-    area = Template(parent=layout)
+    area = Template(name="area", parent=layout)
     area.offset = ResolvableValue(1)
     field = Template(parent=area)
     field.offset = ResolvableValue(4)

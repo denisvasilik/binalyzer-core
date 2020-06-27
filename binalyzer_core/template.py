@@ -30,15 +30,18 @@ class Template(NodeMixin, object):
     """
 
     def __init__(self, name=None, parent=None, children=None, **kwargs):
+        self._value = bytes([0])
+        self._binding_context = None
+
         #: The unique identifier of the template
         self.name = name
-
-        #: Parent of the template (optional)
-        self.parent = parent
 
         #: Children of the template
         if children:
             self.children = children
+
+        #: Parent of the template (optional)
+        self.parent = parent
 
         #: :class:`~binalyzer.template.AddressingMode` of the template
         self.addressing_mode = AddressingMode.Relative
@@ -60,13 +63,6 @@ class Template(NodeMixin, object):
 
         #: :class:`~binalyzer.template.Boundary` of the template
         self.boundary = Boundary(template=self)
-
-        #: :class:`~binalyzer.binalyzer.BindingContext` of the template
-        self.binding_context = None
-        if self.parent:
-            self.binding_context = self.parent.binding_context
-
-        self._value = bytes([0])
 
     @property
     def absolute_address(self):
@@ -104,16 +100,26 @@ class Template(NodeMixin, object):
         else:
             self._value = value
 
-    def _pre_attach(self, parent):
+    @property
+    def binding_context(self):
+        """The :class:`~binalyzer.binalyzer.BindingContext` of the template
+        """
+        return self._binding_context
+
+    @binding_context.setter
+    def binding_context(self, value):
+        self._binding_context = value
+        self._propagate_binding_context()
+
+    def _post_attach(self, parent):
         if self.name:
             parent.__dict__[self.name.replace("-", "_")] = self
-        if parent.binding_context:
-            parent.propagate()
+        self.binding_context = parent.binding_context
 
-    def propagate(self):
+    def _propagate_binding_context(self):
         """Propagates the binding context top-down from this element to its
         children.
         """
         for child in self.children:
             child.binding_context = self.binding_context
-            child.propagate()
+            child._propagate_binding_context()
