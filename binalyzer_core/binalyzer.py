@@ -11,8 +11,8 @@
 import io
 
 from .context import BindingContext
-from .template_provider import PlainTemplateProvider
-from .data_provider import ZeroedDataProvider
+from .template_provider import TemplateProvider
+from .data_provider import DataProvider
 
 
 class Binalyzer(object):
@@ -23,14 +23,15 @@ class Binalyzer(object):
     :param stream: a binary data stream that sould be bound to the template
     """
 
-    def __init__(self, template_provider=None, data_provider=None):
-        if template_provider is None:
-            template_provider = PlainTemplateProvider()
+    def __init__(self, template=None, data=None):
+        if template is None:
+            template = Template()
 
-        if data_provider is None:
-            data_provider = ZeroedDataProvider(template_provider.template.size.value)
+        if data is None:
+            data = io.BytesIO()
 
-        self._binding_context = BindingContext(template_provider, data_provider)
+        self._binding_context = BindingContext(TemplateProvider(template),
+                                               DataProvider(data))
 
     @property
     def template(self):
