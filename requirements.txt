@@ -14,3 +14,4 @@ sphinxcontrib-log-cabinet==1.0.1
 pre-commit==2.1.1
 wheel==0.34.2
 twine==3.1.1
+anytree>=2.8.0
