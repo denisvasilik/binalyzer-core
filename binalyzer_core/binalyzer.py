@@ -13,6 +13,7 @@ import io
 from .context import BindingContext
 from .template_provider import TemplateProvider
 from .data_provider import DataProvider
+from .template import Template
 
 
 class Binalyzer(object):
