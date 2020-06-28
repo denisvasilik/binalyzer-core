@@ -31,6 +31,8 @@ setuptools.setup(
     package_data={},
     data_files=[("", ["CHANGELOG.md"])],
     setup_requires=[],
-    install_requires=[],
+    install_requires=[
+        "anytree>=2.8.0",
+    ],
     entry_points={},
 )
