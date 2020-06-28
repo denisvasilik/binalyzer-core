@@ -16,7 +16,7 @@ from binalyzer_core import (
 def test_binalyzer_instantiation_with_default_parameters():
     binalyzer = Binalyzer()
     assert isinstance(binalyzer.template_provider, TemplateProvider)
-    assert isinstance(binalyzer.data_provider, ZeroedDataProvider)
+    assert isinstance(binalyzer.data_provider, DataProvider)
 
 
 def test_binalyzer_instantiation():
@@ -28,23 +28,30 @@ def test_binalyzer_instantiation():
 
 def test_binalyzer_get_template_provider():
     template_provider = PlainTemplateProvider()
+    template = template_provider.template
     data_provider = ZeroedDataProvider()
-    binalyzer = Binalyzer(template_provider, data_provider)
-    assert binalyzer.template_provider == template_provider
+    data = data_provider.data
+    binalyzer = Binalyzer(template, data)
+    assert binalyzer.template_provider != template_provider
+    assert binalyzer.template_provider.template == template
+    assert binalyzer.template == template
 
 
 def test_binalyzer_get_data_provider():
-    template_provider = PlainTemplateProvider()
+    template = PlainTemplateProvider().template
     data_provider = ZeroedDataProvider()
-    binalyzer = Binalyzer(template_provider, data_provider)
-    assert binalyzer.data_provider == data_provider
+    data = data_provider.data
+    binalyzer = Binalyzer(template, data)
+    assert binalyzer.data_provider != data_provider
+    assert binalyzer.data_provider.data == data
+    assert binalyzer.data == data
 
 
 def test_binalyzer_get_data():
-    template_provider = PlainTemplateProvider()
-    data_provider = ZeroedDataProvider()
-    binalyzer = Binalyzer(template_provider, data_provider)
-    assert binalyzer.data == data_provider.data
+    template = PlainTemplateProvider().template
+    data = ZeroedDataProvider().data
+    binalyzer = Binalyzer(template, data)
+    assert binalyzer.data == data
 
 
 def test_binalyzer_get_template():
