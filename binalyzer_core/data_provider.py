@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    binalyzer.data_provider
+    ~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements basic data providers for binary streams.
+
+    :copyright: 2020 Denis Vasilík
+    :license: MIT
+"""
 import io
 
 

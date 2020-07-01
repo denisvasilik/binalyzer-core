@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+    binalyzer.template_provider
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements basic template providers.
+
+    :copyright: 2020 Denis Vasilík
+    :license: MIT
+"""
+
+
 class TemplateProviderBase(object):
     @property
     def template(self):

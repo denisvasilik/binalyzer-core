@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    binalyzer.context
+    ~~~~~~~~~~~~~~~~~
+
+    This module implements the binding context that is used to bind templates to
+    binary streams.
+
+    :copyright: 2020 Denis Vasilík
+    :license: MIT
+"""
 from .template_provider import (
     TemplateProviderBase,
     TemplateProvider,
@@ -9,33 +20,32 @@ from .data_provider import (
 
 
 class BindingContext(object):
-    """The :class:`BindingContext` is a data container that holds contextual
-    information about the binding between a template and binary data. It is
-    mainly an interface that is used to decouple the :class:`~binalyzer.template.Template`
-    from the :class:`Binalyzer` and :class:`~binalyzer.provider.DataProvider`.
+    """The :class:`BindingContext` stores information about the binding between a
+    template and binary stream. It uses a :class:`~binalyzer.TemplateProvider` and
+    a :class:`~binalyzer.DataProvider` to get templates and binary streams from
+    various different sources.
 
-    :param template: the template to provide by the context
-    :param stream: the stream to provide by the context
+    The :class:`~binalyzer.BackedBindingContext` for instance uses a
+    :class:`~binalyzer.ZeroedDataProvider` to bind a given template to zeroed data.
+
+    :param template_provider: a :class:`~binalyzer.TemplateProvider`
+    :param data_provider: a :class:`~binalyzer.DataProvider`
     """
 
     def __init__(
         self, template_provider: TemplateProviderBase, data_provider: DataProviderBase
     ):
-        #: The template to provide by the context. It usually is the *top-most*
-        #: or *root* template.
+        #: The template provider to get the template from.
         self.template_provider = template_provider
         self.template_provider.template.binding_context = self
 
-        #: The data provider to use.
-        #: Defaults to :class:`~binalyzer.provider.BufferedIODataProvider`.
+        #: The data provider to get the binary stream from.
         self.data_provider = data_provider
 
     @property
     def template(self):
         """A :class:`~binalyzer.template.Template` that is bound to the
-        corresponding :attr:`~binalyzer.binalyzer.Binalyzer.stream`. In
-        case a new template is assigned it gets rebound to the buffered IO
-        stream.
+        corresponding binary :attr:`~binalyzer.Binalyzer.data`.
         """
         return self.template_provider.template
 
@@ -46,9 +56,8 @@ class BindingContext(object):
 
     @property
     def data(self):
-        """A buffered IO stream that is bound to the corresponding
-        :attr:`~binalyzer.binalyzer.Binalyzer.template`.
-        In case a new stream is assigned it gets rebound to the template.
+        """A buffered or unbuffered binary stream that inherits :class:`~io.IOBase`.
+        It is bound to the corresponding :attr:`~binalyzer.Binalyzer.template`.
         """
         return self.data_provider.data
 
@@ -58,6 +67,10 @@ class BindingContext(object):
 
 
 class BackedBindingContext(BindingContext):
+    """ The :class:`~binalyzer.BackedBindingContext` uses a
+    :class:`~binalyzer.ZeroedDataProvider` to bind a given template to zeroed
+    data.
+    """
 
     def __init__(self, template):
         super(BackedBindingContext, self).__init__(

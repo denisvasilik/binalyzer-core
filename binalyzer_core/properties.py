@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+    binalyzer.properties
+    ~~~~~~~~~~~~~~~~~~~~
+
+    This module implements the properties of a template.
+
+    :copyright: 2020 Denis Vasilík
+    :license: MIT
+"""
 from anytree import find_by_attr
 from anytree.util import rightsibling
 
@@ -99,7 +109,8 @@ class Sizing(object):
 
 @classproperty_support
 class ByteOrder(object):
-    """Determines how to interprete the data the :class:`Template` is bound to.
+    """Determines the endianess of the byte-sequence the :class:`Template` is
+    bound to. Valid values are `LittleEndian` or `BigEndian`.
     """
 
     LITTLE_ENDIAN_VALUE = "LittleEndian"
@@ -192,9 +203,9 @@ class ResolvableValue(object):
 
     def _interprete(self, bytes):
         if self.byte_order == ByteOrder.LittleEndian:
-            return int.from_bytes(bytes, byteorder="little")
+            return int.from_bytes(bytes, byteorder="LittleEndian")
         else:
-            return int.from_bytes(bytes, byteorder="big")
+            return int.from_bytes(bytes, byteorder="BigEndian")
 
 
 class Offset(ResolvableValue):

@@ -3,7 +3,7 @@
     binalyzer_core
     ~~~~~~~~~~~~~~
 
-    A library supporting the analysis of binary data.
+    The core package of the Binalyzer library.
 
     :copyright: 2020 Denis Vasilík
     :license: MIT, see LICENSE for details.
@@ -35,6 +35,7 @@ from .properties import (
 )
 from .context import (
     BindingContext,
+    BackedBindingContext,
 )
 from .template_provider import (
     TemplateProviderBase,

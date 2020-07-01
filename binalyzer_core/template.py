@@ -3,7 +3,7 @@
     binalyzer.template
     ~~~~~~~~~~~~~~~~~~
 
-    This module implements the concepts of the template mechanism.
+    This module implements the template.
 
     :copyright: 2020 Denis Vasilík
     :license: MIT
@@ -25,47 +25,51 @@ from .context import BackedBindingContext
 
 
 class Template(NodeMixin, object):
-    """This class implements the concept described in :ref:`template`. It is
-    used to establish the template object model that makes binary data
-    accessible.
+    """This class implements the template mechanism as described in :ref:`template`.
+    In addition, it inherits :class:`~anytree.node.nodemixin.NodeMixin` of the
+    `anytree`_ library making it possible to create template trees.
+
+    .. _anytree: https://anytree.readthedocs.io/en/latest/
     """
 
     def __init__(self, name=None, parent=None, children=None, **kwargs):
         self._binding_context = BackedBindingContext(self)
 
-        #: The unique identifier of the template
+        #: The name of the template
         self.name = name
 
         #: Children of the template
         if children:
             self.children = children
 
-        #: Parent of the template (optional)
+        #: Parent of the template
         self.parent = parent
 
-        #: :class:`~binalyzer.template.AddressingMode` of the template
+        #: :class:`~binalyzer.AddressingMode` of the template
         self.addressing_mode = AddressingMode.Relative
 
-        #: :class:`~binalyzer.template.Offset` of the template
+        #: :class:`~binalyzer.Offset` of the template
         self.offset = Offset(template=self)
 
-        #: :class:`~binalyzer.template.Size` of the template
+        #: :class:`~binalyzer.Size` of the template
         self.size = Size(template=self)
 
-        #: :class:`~binalyzer.template.Sizing` of the template
+        #: :class:`~binalyzer.Sizing` of the template
         self.sizing = Sizing.Auto
 
-        #: :class:`~binalyzer.template.PaddingBefore` of the template
+        #: :class:`~binalyzer.PaddingBefore` of the template
         self.padding_before = PaddingBefore(template=self)
 
-        #: :class:`~binalyzer.template.PaddingAfter` of the template
+        #: :class:`~binalyzer.PaddingAfter` of the template
         self.padding_after = PaddingAfter(template=self)
 
-        #: :class:`~binalyzer.template.Boundary` of the template
+        #: :class:`~binalyzer.Boundary` of the template
         self.boundary = Boundary(template=self)
 
     @property
     def absolute_address(self):
+        """Provides the absolue address of the template within the binary stream.
+        """
         if self.addressing_mode == AddressingMode.Absolute:
             return self.offset
         elif self.parent:
@@ -78,18 +82,14 @@ class Template(NodeMixin, object):
     @property
     def value(self):
         """The :attr:`value` provides direct access to the data the template is
-        bound to. It uses the :attr:`~binalyzer.binalyzer.BindingContext.provider`
-        of the :class:`~binalyzer.binalyzer.BindingContext`.
+        bound to. It uses the :attr:`~binalyzer.BindingContext.data_provider`
+        of the :class:`~binalyzer.BindingContext`.
 
-        Reading from the property provides a buffered IO stream of the area the
-        template is bound to. Likewise, writing to the property writes a buffered
-        IO stream to the area the template is bound to.
-
-        .. note:: The size of the buffered IO stream must match the
-                  :py:attr:`~binalyzer.template.Template.size` of the template.
+        Reading from the property provides a binary stream of the area the
+        template is bound to. Likewise, writing to the property writes a binary
+        stream to the same area.
         """
         return self.binding_context.data_provider.read(self)
-
 
     @value.setter
     def value(self, value):
@@ -97,7 +97,7 @@ class Template(NodeMixin, object):
 
     @property
     def binding_context(self):
-        """The :class:`~binalyzer.binalyzer.BindingContext` of the template
+        """The :class:`~binalyzer.BindingContext` of the template
         """
         return self._binding_context
 
@@ -112,9 +112,6 @@ class Template(NodeMixin, object):
         self.binding_context = parent.binding_context
 
     def _propagate_binding_context(self):
-        """Propagates the binding context top-down from this element to its
-        children.
-        """
         for child in self.children:
             child.binding_context = self.binding_context
             child._propagate_binding_context()
