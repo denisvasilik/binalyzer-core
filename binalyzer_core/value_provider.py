@@ -8,14 +8,14 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-
+from anytree import find_by_attr
 
 class ValueProviderBase(object):
 
     def get_value(self):
         pass
 
-    def set_value(value):
+    def set_value(self, value):
         pass
 
 
@@ -27,20 +27,20 @@ class ValueProvider(ValueProviderBase):
     def get_value(self):
         return self._value
 
-    def set_value(value):
+    def set_value(self, value):
         self._value = value
 
 
 class FunctionValueProvider(ValueProviderBase):
 
     def __init__(self, func=None):
-        self._func = func
+        self.func = func
 
     def get_value(self):
-        return self._func()
+        return self.func()
 
-    def set_value(func):
-        self._func = func
+    def set_value(self, func):
+        raise RuntimeError('Not supported')
 
 
 class ReferenceValueProvider(ValueProviderBase):

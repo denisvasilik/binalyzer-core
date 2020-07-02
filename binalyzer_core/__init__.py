@@ -48,3 +48,9 @@ from .utils import (
     rightsiblings,
     leftsiblings,
 )
+from .value_provider import (
+    ValueProvider,
+    FunctionValueProvider,
+    ReferenceValueProvider,
+    RelativeOffsetValueProvider,
+)
