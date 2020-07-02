@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    binalyzer.binalyzer
+    binalyzer_core.binalyzer
     ~~~~~~~~~~~~~~~~~~~
 
     This module implements the central Binalyzer object.

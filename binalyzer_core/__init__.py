@@ -24,14 +24,9 @@ from .template import (
 )
 from .properties import (
     AddressingMode,
-    Boundary,
     ByteOrder,
-    Offset,
-    PaddingBefore,
-    PaddingAfter,
-    ResolvableValue,
-    Size,
     Sizing,
+    ValueProperty,
 )
 from .context import (
     BindingContext,

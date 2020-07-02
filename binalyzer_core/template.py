@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    binalyzer.template
-    ~~~~~~~~~~~~~~~~~~
+    binalyzer_core.template
+    ~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements the template.
 
@@ -13,13 +13,8 @@ from anytree.util import leftsibling, rightsibling
 
 from .properties import (
     AddressingMode,
-    Boundary,
-    Offset,
-    PaddingBefore,
-    PaddingAfter,
-    ResolvableValue,
-    Size,
     Sizing,
+    ValueProperty,
 )
 from .context import BackedBindingContext
 
@@ -48,23 +43,23 @@ class Template(NodeMixin, object):
         #: :class:`~binalyzer.AddressingMode` of the template
         self.addressing_mode = AddressingMode.Relative
 
-        #: :class:`~binalyzer.Offset` of the template
-        self.offset = Offset(template=self)
-
-        #: :class:`~binalyzer.Size` of the template
-        self.size = Size(template=self)
-
         #: :class:`~binalyzer.Sizing` of the template
         self.sizing = Sizing.Auto
 
+        #: :class:`~binalyzer.Offset` of the template
+        self.offset = ValueProperty()
+
+        #: :class:`~binalyzer.Size` of the template
+        self.size = ValueProperty()
+
         #: :class:`~binalyzer.PaddingBefore` of the template
-        self.padding_before = PaddingBefore(template=self)
+        self.padding_before = ValueProperty()
 
         #: :class:`~binalyzer.PaddingAfter` of the template
-        self.padding_after = PaddingAfter(template=self)
+        self.padding_after = ValueProperty()
 
         #: :class:`~binalyzer.Boundary` of the template
-        self.boundary = Boundary(template=self)
+        self.boundary = ValueProperty()
 
     @property
     def absolute_address(self):
@@ -73,11 +68,11 @@ class Template(NodeMixin, object):
         if self.addressing_mode == AddressingMode.Absolute:
             return self.offset
         elif self.parent:
-            return ResolvableValue(
+            return ValueProperty(
                 self.offset.value + self.parent.absolute_address.value
             )
         else:
-            return ResolvableValue(self.offset.value)
+            return ValueProperty(self.offset.value)
 
     @property
     def value(self):

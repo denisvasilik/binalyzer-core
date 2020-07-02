@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    binalyzer.data_provider
-    ~~~~~~~~~~~~~~~~~~~~~~~
+    binalyzer_core.data_provider
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements basic data providers for binary streams.
 

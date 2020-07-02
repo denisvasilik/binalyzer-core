@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    binalyzer.context
-    ~~~~~~~~~~~~~~~~~
+    binalyzer_core.context
+    ~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements the binding context that is used to bind templates to
     binary streams.

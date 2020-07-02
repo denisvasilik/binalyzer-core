@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    binalyzer.template_provider
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    binalyzer_core.template_provider
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements basic template providers.
 
