@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    binalyzer.properties
-    ~~~~~~~~~~~~~~~~~~~~
+    binalyzer_core.properties
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements the properties of a template.
 
@@ -11,7 +11,15 @@
 from anytree import find_by_attr
 from anytree.util import rightsibling
 
-from .utils import classproperty_support, classproperty
+from .utils import (
+    classproperty_support,
+    classproperty,
+)
+from .value_provider import (
+    ValueProvider,
+    FunctionValueProvider,
+    ReferenceValueProvider,
+)
 
 
 @classproperty_support
@@ -149,6 +157,79 @@ class ByteOrder(object):
 
     def __eq__(self, other):
         return self.value == other.value
+
+
+class PropertyBase(object):
+
+    def __init__(
+        self,
+        template,
+        value_provider,
+        value_converter=IdentityValueConverter()
+    ):
+        self.template = template
+        self.value_provider = value_provider
+        self.value_converter = value_converter
+
+    @property
+    def value(self):
+        return self.value_converter.convert(
+            self.value_provider.get_value(), template)
+
+    @value.setter
+    def value(self, value):
+        self.value_provider.set_value(
+            self.value_converter.convert_back(value, template))
+
+
+class ValueProperty(PropertyBase):
+
+    def __init__(self, template):
+        super(ValueProperty, self).__init__(ValueProvider(), template)
+
+
+class FunctionProperty(PropertyBase):
+
+    def __init__(self, template):
+        super(FunctionProperty, self).__init__(
+            template,
+            FunctionValueProvider()
+            IdentityValueConverter()
+        )
+
+
+class ReferenceProperty(PropertyBase):
+
+    def __init__(self, template, reference_name):
+        super(ReferenceProperty, self).__init__(
+            template,
+            ReferenceValueProvider(reference_name, template),
+            IntegerValueConverter()
+        )
+
+
+class IdentityValueConverter(object):
+
+    def convert(self, value, template):
+        return value
+
+    def convert_back(self, value, template):
+        return value
+
+
+class IntegerValueConverter(object):
+
+    def convert(self, value):
+        if self.byte_order == ByteOrder.LittleEndian:
+            return int.from_bytes(value, byteorder="LittleEndian")
+        else:
+            return int.from_bytes(value, byteorder="BigEndian")
+
+    def convert_back(self, value, template):
+        if self.byte_order == ByteOrder.LittleEndian:
+            return value.to_bytes(template.size.value, 'little')
+        else:
+            return value.to_bytes(template.size.value, 'big')
 
 
 class ResolvableValue(object):
