@@ -23,15 +23,11 @@ from .template import (
     Template,
 )
 from .properties import (
-    AddressingMode,
-    Boundary,
-    ByteOrder,
-    Offset,
-    PaddingBefore,
-    PaddingAfter,
-    ResolvableValue,
-    Size,
-    Sizing,
+    ValueProperty,
+    ReferenceProperty,
+    AutoSizeValueProperty,
+    StretchSizeProperty,
+    RelativeOffsetValueProperty,
 )
 from .context import (
     BindingContext,
@@ -52,4 +48,11 @@ from .utils import (
     siblings,
     rightsiblings,
     leftsiblings,
+)
+from .value_provider import (
+    ValueProvider,
+    FunctionValueProvider,
+    ReferenceValueProvider,
+    RelativeOffsetValueProvider,
+    RelativeOffsetReferenceProvider,
 )

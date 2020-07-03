@@ -3,13 +3,9 @@ import pytest
 import io
 
 from binalyzer_core import (
-    BindingContext,
+    Binalyzer,
     Template,
-    ByteOrder,
-    AddressingMode,
-    ResolvableValue,
-    TemplateProvider,
-    DataProvider,
+    ValueProperty,
 )
 
 
@@ -18,12 +14,11 @@ def test_default_instantiation():
     assert template.name == None
     assert template.parent == None
     assert template.children == ()
-    assert template.addressing_mode.value == AddressingMode.Relative.value
-    assert template.offset.value == 0
-    assert template.size.value == 0
-    assert template.boundary.value == 0
-    assert template.padding_before.value == 0
-    assert template.padding_after.value == 0
+    assert template.offset == 0
+    assert template.size == 0
+    assert template.boundary == 0
+    assert template.padding_before == 0
+    assert template.padding_after == 0
 
 
 def test_dynamic_child_attribute_creation():
@@ -41,142 +36,97 @@ def test_parent_instantiation():
 
 
 def test_read_value():
-    buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
-    layout = template_provider_mock.template
+    binalyzer = Binalyzer(Template(), io.BytesIO(b"01234567"))
+    layout = binalyzer.template
     layout.name = "layout"
-    layout.binding_context = binding_context
-    layout.offset = ResolvableValue(2)
+    layout.offset = 2
     area = Template(name="area", parent=layout)
-    area.offset = ResolvableValue(1)
+    area.offset = 1
     field = Template(parent=area)
-    field.offset = ResolvableValue(4)
-    field.size = ResolvableValue(1)
+    field.offset = 4
+    field.size = 1
     assert field.value == b"7"
 
 
 def test_write_value():
-    buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
-    layout = template_provider_mock.template
-    layout.offset = ResolvableValue(2)
+    binalyzer = Binalyzer(Template(), io.BytesIO(b"01234567"))
+    layout = binalyzer.template
+    layout.offset = 2
     area = Template(parent=layout)
-    area.offset = ResolvableValue(3)
+    area.offset = 3
     field = Template(parent=area)
-    field.offset = ResolvableValue(2)
-    field.size = ResolvableValue(1)
-    field.binding_context = binding_context
+    field.offset = 2
+    field.size = 1
     field.value = b"8"
     assert field.value == b"8"
 
 
 def test_read_offset_lower_boundary():
-    buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
-    lower_boundary_area = template_provider_mock.template
-    lower_boundary_area.offset = ResolvableValue(0)
+    binalyzer = Binalyzer(Template(), io.BytesIO(b"01234567"))
+    lower_boundary_area = binalyzer.template
+    lower_boundary_area.offset = 0
     lower_boundary_field = Template(parent=lower_boundary_area)
-    lower_boundary_field.offset = ResolvableValue(0)
-    lower_boundary_field.size = ResolvableValue(1)
-    lower_boundary_field.binding_context = binding_context
+    lower_boundary_field.offset = 0
+    lower_boundary_field.size = 1
     assert lower_boundary_field.value == b"0"
 
 
 def test_read_offset_upper_boundary():
-    buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
-    upper_boundary_area = template_provider_mock.template
-    upper_boundary_area.offset = ResolvableValue(7)
+    binalyzer = Binalyzer(Template(), io.BytesIO(b"01234567"))
+    upper_boundary_area = binalyzer.template
+    upper_boundary_area.offset = 7
     upper_boundary_field = Template(parent=upper_boundary_area)
-    upper_boundary_field.offset = ResolvableValue(0)
-    upper_boundary_field.size = ResolvableValue(1)
-    upper_boundary_field.binding_context = binding_context
+    upper_boundary_field.offset = 0
+    upper_boundary_field.size = 1
     assert upper_boundary_field.value == b"7"
 
 
-# def test_nested_area():
-#     pass
-
-
-# def test_size_calculation():
-#     pass
-
-
 def test_read_at_offset_lower_boundary():
-    buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
-    lower_boundary_field = template_provider_mock.template
-    lower_boundary_field.offset = ResolvableValue(0)
-    lower_boundary_field.size = ResolvableValue(1)
-    lower_boundary_field.binding_context = binding_context
+    binalyzer = Binalyzer(Template(), io.BytesIO(b"01234567"))
+    lower_boundary_field = binalyzer.template
+    lower_boundary_field.offset = 0
+    lower_boundary_field.size = 1
     assert lower_boundary_field.value == b"0"
 
 
 def test_read_at_offset_upper_boundary():
-    buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
-    upper_boundary_field = template_provider_mock.template
-    upper_boundary_field = Template()
-    upper_boundary_field.offset = ResolvableValue(7)
-    upper_boundary_field.size = ResolvableValue(1)
-    upper_boundary_field.binding_context = binding_context
+    binalyzer = Binalyzer(Template(), io.BytesIO(b"01234567"))
+    upper_boundary_field = binalyzer.template
+    upper_boundary_field.offset = 7
+    upper_boundary_field.size = 1
     assert upper_boundary_field.value == b"7"
 
 
 def test_read_size_min_boundary():
-    buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
-    min_boundary_field = template_provider_mock.template
-    min_boundary_field.offset = ResolvableValue(0)
-    min_boundary_field.size = ResolvableValue(1)
-    min_boundary_field.binding_context = binding_context
+    binalyzer = Binalyzer(Template(), io.BytesIO(b"01234567"))
+    min_boundary_field = binalyzer.template
+    min_boundary_field.offset = 0
+    min_boundary_field.size = 1
     assert min_boundary_field.value == b"0"
 
 
 def test_read_size_max_boundary():
-    buffered_stream = io.BytesIO(b"01234567")
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
-    max_boundary_field = template_provider_mock.template
-    max_boundary_field.offset = ResolvableValue(0)
-    max_boundary_field.size = ResolvableValue(8)
-    max_boundary_field.binding_context = binding_context
+    binalyzer = Binalyzer(Template(), io.BytesIO(b"01234567"))
+    max_boundary_field = binalyzer.template
+    max_boundary_field.offset = 0
+    max_boundary_field.size = 8
     assert max_boundary_field.value == b"01234567"
 
 
 def test_read_walkthrough():
     byte_values = list(range(8))
-    buffered_stream = io.BytesIO(bytes(byte_values))
-    data_provider_mock = DataProvider(buffered_stream)
-    template_provider_mock = TemplateProvider(Template())
-    binding_context = BindingContext(
-        template_provider_mock, data_provider_mock)
+    binalyzer = Binalyzer(Template(), io.BytesIO(bytes(byte_values)))
     for offset in byte_values:
-        field = template_provider_mock.template
-        field.offset = ResolvableValue(offset)
-        field.size = ResolvableValue(1)
-        field.binding_context = binding_context
+        field = binalyzer.template
+        field.offset = offset
+        field.size = 1
         assert field.value == bytes([offset])
+
+
+def test_template_auto_size():
+    binalyzer = Binalyzer()
+    template_a = Template('a', parent=binalyzer.template)
+    template_a.size = 4
+    template_b = Template('b', parent=binalyzer.template)
+    template_b.size = 4
+    assert binalyzer.template.size == 8

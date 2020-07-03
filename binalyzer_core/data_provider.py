@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    binalyzer.data_provider
-    ~~~~~~~~~~~~~~~~~~~~~~~
+    binalyzer_core.data_provider
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module implements basic data providers for binary streams.
 
@@ -40,13 +40,13 @@ class DataProvider(DataProviderBase):
         self._data = value
 
     def read(self, template):
-        absolute_address = template.absolute_address.value
-        size = template.size.value
+        absolute_address = template.absolute_address
+        size = template.size
         self.data.seek(absolute_address)
         return self.data.read(size)
 
     def write(self, template, value):
-        self.data.seek(template.absolute_address.value)
+        self.data.seek(template.absolute_address)
         self.data.write(value)
 
 
