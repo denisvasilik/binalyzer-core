@@ -15,6 +15,8 @@ from .properties import (
     AddressingMode,
     Sizing,
     ValueProperty,
+    AutoSizeProperty,
+    RelativeOffsetProperty,
 )
 from .context import BackedBindingContext
 
@@ -40,39 +42,115 @@ class Template(NodeMixin, object):
         #: Parent of the template
         self.parent = parent
 
-        #: :class:`~binalyzer.AddressingMode` of the template
-        self.addressing_mode = AddressingMode.Relative
-
-        #: :class:`~binalyzer.Sizing` of the template
-        self.sizing = Sizing.Auto
-
         #: :class:`~binalyzer.Offset` of the template
-        self.offset = ValueProperty()
+        self._offset = RelativeOffsetProperty(self)
 
         #: :class:`~binalyzer.Size` of the template
-        self.size = ValueProperty()
+        self._size = ValueProperty()
 
         #: :class:`~binalyzer.PaddingBefore` of the template
-        self.padding_before = ValueProperty()
+        self._padding_before = ValueProperty()
 
         #: :class:`~binalyzer.PaddingAfter` of the template
-        self.padding_after = ValueProperty()
+        self._padding_after = ValueProperty()
 
         #: :class:`~binalyzer.Boundary` of the template
-        self.boundary = ValueProperty()
+        self._boundary = ValueProperty()
+
+    @property
+    def offset(self):
+        return self._offset.value
+
+    @offset.setter
+    def offset(self, value):
+        self._offset.value = value
+
+    @property
+    def offset_property(self):
+        return self._offset
+
+    @offset_property.setter
+    def offset_property(self, value):
+        self._offset = value
+
+    @property
+    def size(self):
+        return self._size.value
+
+    @size.setter
+    def size(self, value):
+        self._size.value = value
+
+    @property
+    def size_property(self):
+        return self._size
+
+    @size_property.setter
+    def size_property(self, value):
+        self._size = value
+
+    @property
+    def padding_before(self):
+        return self._padding_before.value
+
+    @padding_before.setter
+    def padding_before(self, value):
+        self._padding_before.value = value
+
+    @property
+    def padding_before_property(self):
+        return self._padding_before
+
+    @padding_before_property.setter
+    def padding_before_property(self, value):
+        self._padding_before = value
+
+    @property
+    def padding_after(self):
+        return self._padding_after.value
+
+    @padding_after.setter
+    def padding_after(self, value):
+        self._padding_after.value = value
+
+    @property
+    def padding_after_property(self):
+        return self._padding_after
+
+    @padding_after_property.setter
+    def padding_after_property(self, value):
+        self._padding_after = value
+
+    @property
+    def boundary(self):
+        return self._boundary.value
+
+    @boundary.setter
+    def boundary(self, value):
+        self._boundary.value = value
+
+    @property
+    def boundary_property(self):
+        return self._boundary
+
+    @boundary_property.setter
+    def boundary_property(self, value):
+        self._boundary = value
 
     @property
     def absolute_address(self):
         """Provides the absolue address of the template within the binary stream.
         """
-        if self.addressing_mode == AddressingMode.Absolute:
+        if isinstance(self.offset_property, ValueProperty):
             return self.offset
-        elif self.parent:
-            return ValueProperty(
-                self.offset.value + self.parent.absolute_address.value
-            )
-        else:
-            return ValueProperty(self.offset.value)
+
+        if isinstance(self.offset_property, RelativeOffsetProperty):
+            if self.parent:
+                return self.offset + self.parent.absolute_address
+            else:
+                return self.offset
+
+        raise RuntimeError('Not supported')
 
     @property
     def value(self):

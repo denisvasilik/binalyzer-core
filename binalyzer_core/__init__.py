@@ -27,6 +27,7 @@ from .properties import (
     ByteOrder,
     Sizing,
     ValueProperty,
+    ReferenceProperty,
 )
 from .context import (
     BindingContext,

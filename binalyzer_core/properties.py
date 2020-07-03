@@ -19,6 +19,8 @@ from .value_provider import (
     ValueProvider,
     FunctionValueProvider,
     ReferenceValueProvider,
+    AutoSizeValueProvider,
+    RelativeOffsetValueProvider,
     IdentityValueConverter,
     IntegerValueConverter,
 )
@@ -66,7 +68,7 @@ class ReferenceProperty(PropertyBase):
     def __init__(self, template, reference_name):
         super(ReferenceProperty, self).__init__(
             template,
-            ReferenceValueProvider(reference_name, template),
+            ReferenceValueProvider(template, reference_name),
             IntegerValueConverter()
         )
 
@@ -74,7 +76,7 @@ class ReferenceProperty(PropertyBase):
 class RelativeOffsetProperty(PropertyBase):
 
     def __init__(self, template):
-        super(Offset, self).__init__(
+        super(RelativeOffsetProperty, self).__init__(
             template, RelativeOffsetValueProvider(template))
 
 
@@ -88,7 +90,7 @@ class StretchedSizeProperty(PropertyBase):
 class AutoSizeProperty(PropertyBase):
 
     def __init__(self, template):
-        super(Offset, self).__init__(
+        super(AutoSizeProperty, self).__init__(
             template, AutoSizeValueProvider(template))
 
 

@@ -10,6 +10,7 @@
 """
 from anytree import find_by_attr
 
+
 class ValueProviderBase(object):
 
     def get_value(self):
@@ -60,36 +61,37 @@ class RelativeOffsetValueProvider(ValueProviderBase):
 
     def __init__(self, template):
         self.template = template
+        self._offset = 0
 
     def get_value(self):
-        return self._get_relative_offset()
+        return self._get_relative_offset() + self._offset
 
     def set_value(self, value):
-        raise RuntimeError('Not supported')
+        self._offset = value
 
     def _get_relative_offset(self):
         boundary_offset_relative_to_parent = 0
         boundary_offset_relative_to_sibling = 0
 
-        if self.template.boundary and self.template.boundary.value > 0:
+        if self.template.boundary > 0:
             boundary_offset_relative_to_parent = (
-                self.template.parent.offset.value % self.template.boundary.value
+                self.template.parent.offset % self.template.boundary
             )
 
         sibling_relative_offset = self._get_relative_offset_end_of_previous_sibling()
 
         if (
             self.template.boundary
-            and self.template.boundary.value > 0
+            and self.template.boundary > 0
             and sibling_relative_offset > 0
-            and sibling_relative_offset % self.template.boundary.value
+            and sibling_relative_offset % self.template.boundary
         ):
-            boundary_offset_relative_to_sibling = self.template.boundary.value - (
-                sibling_relative_offset % self.template.boundary.value
+            boundary_offset_relative_to_sibling = self.template.boundary - (
+                sibling_relative_offset % self.template.boundary
             )
 
         return (
-            self.template.padding_before.value
+            self.template.padding_before
             + boundary_offset_relative_to_parent
             + sibling_relative_offset
             + boundary_offset_relative_to_sibling
@@ -108,9 +110,9 @@ class RelativeOffsetValueProvider(ValueProviderBase):
             else:
                 previous_sibling = self.template.parent.children[index - 1]
                 return (
-                    previous_sibling.offset.value
-                    + previous_sibling.size.value
-                    + previous_sibling.padding_after.value
+                    previous_sibling.offset
+                    + previous_sibling.size
+                    + previous_sibling.padding_after
                 )
         else:
             return 0
@@ -122,7 +124,10 @@ class AutoSizeValueProvider(ValueProviderBase):
         self.template = template
 
     def get_value(self):
-        return self._get_total_size_of_children()
+        if self.template.children:
+            return self._get_total_size_of_children()
+        else:
+            return 0
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
@@ -134,17 +139,17 @@ class AutoSizeValueProvider(ValueProviderBase):
 
     def _get_total_size_of_child(self, child):
         # NOTE: child.offset already contains the value of padding-before!!!
-        value = child.offset.value + child.size.value + child.padding_after.value
+        value = child.offset + child.size + child.padding_after
 
         return self.multiple_of_boundary(value, child.parent.boundary)
 
     def multiple_of_boundary(self, value, boundary_attribute):
-        if boundary_attribute.value == 0:
+        if boundary_attribute == 0:
             return value
-        boundary_multiplier = int(value / boundary_attribute.value)
-        if value % boundary_attribute.value:
+        boundary_multiplier = int(value / boundary_attribute)
+        if value % boundary_attribute:
             boundary_multiplier += 1
-        return boundary_multiplier * boundary_attribute.value
+        return boundary_multiplier * boundary_attribute
 
 
 class StretchSizeValueProvider(ValueProviderBase):
@@ -161,9 +166,9 @@ class StretchSizeValueProvider(ValueProviderBase):
     def _calculate_stretched_size(self):
         next_sibling = rightsibling(self.template)
         if next_sibling:
-            return next_sibling.offset.value - self.template.offset.value
+            return next_sibling.offset - self.template.offset
         elif self.template.parent:
-            return self.template.parent.size.value - self.template.offset.value
+            return self.template.parent.size - self.template.offset
         elif self.template.binding_context.data:
             data = self.template.binding_context.data
             data.seek(0, 2)
@@ -183,14 +188,18 @@ class IdentityValueConverter(object):
 
 class IntegerValueConverter(object):
 
-    def convert(self, value):
-        if self.byte_order == ByteOrder.LittleEndian:
-            return int.from_bytes(value, byteorder="LittleEndian")
+    def convert(self, value, template):
+        from .properties import ByteOrder
+
+        if template.byte_order == ByteOrder.LittleEndian:
+            return int.from_bytes(value, byteorder='little')
         else:
-            return int.from_bytes(value, byteorder="BigEndian")
+            return int.from_bytes(value, byteorder='big')
 
     def convert_back(self, value, template):
-        if self.byte_order == ByteOrder.LittleEndian:
-            return value.to_bytes(template.size.value, 'little')
+        from .properties import ByteOrder
+
+        if template.byte_order == ByteOrder.LittleEndian:
+            return value.to_bytes(template.size, 'little')
         else:
-            return value.to_bytes(template.size.value, 'big')
+            return value.to_bytes(template.size, 'big')
