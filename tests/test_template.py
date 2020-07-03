@@ -123,3 +123,12 @@ def test_read_walkthrough():
         field.offset = offset
         field.size = 1
         assert field.value == bytes([offset])
+
+
+def test_template_auto_size():
+    binalyzer = Binalyzer()
+    template_a = Template('a', parent=binalyzer.template)
+    template_a.size = 4
+    template_b = Template('b', parent=binalyzer.template)
+    template_b.size = 4
+    assert binalyzer.template.size == 8

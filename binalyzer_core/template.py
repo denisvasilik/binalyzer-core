@@ -46,7 +46,7 @@ class Template(NodeMixin, object):
         self._offset = RelativeOffsetProperty(self)
 
         #: :class:`~binalyzer.Size` of the template
-        self._size = ValueProperty()
+        self._size = AutoSizeProperty(self)
 
         #: :class:`~binalyzer.PaddingBefore` of the template
         self._padding_before = ValueProperty()
@@ -79,7 +79,7 @@ class Template(NodeMixin, object):
 
     @size.setter
     def size(self, value):
-        self._size.value = value
+        self._size = ValueProperty(value)
 
     @property
     def size_property(self):
@@ -150,7 +150,7 @@ class Template(NodeMixin, object):
             else:
                 return self.offset
 
-        raise RuntimeError('Not supported')
+        raise TypeError()
 
     @property
     def value(self):
