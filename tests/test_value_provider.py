@@ -6,6 +6,7 @@ from binalyzer_core import (
     FunctionValueProvider,
     ReferenceValueProvider,
     RelativeOffsetValueProvider,
+    RelativeOffsetReferenceProvider,
     Template,
 )
 

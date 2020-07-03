@@ -11,16 +11,14 @@
 from anytree import find_by_attr
 from anytree.util import rightsibling
 
-from .utils import (
-    classproperty_support,
-    classproperty,
-)
 from .value_provider import (
     ValueProvider,
     FunctionValueProvider,
     ReferenceValueProvider,
     AutoSizeValueProvider,
     RelativeOffsetValueProvider,
+    RelativeOffsetReferenceProvider,
+    StretchSizeValueProvider,
     IdentityValueConverter,
     IntegerValueConverter,
 )
@@ -73,159 +71,36 @@ class ReferenceProperty(PropertyBase):
         )
 
 
-class RelativeOffsetProperty(PropertyBase):
+class RelativeOffsetValueProperty(PropertyBase):
+
+    def __init__(self, template, ignore_boundary=False):
+        super(RelativeOffsetValueProperty, self).__init__(
+            template, RelativeOffsetValueProvider(template, ignore_boundary))
+
+
+class RelativeOffsetReferenceProperty(PropertyBase):
 
     def __init__(self, template):
-        super(RelativeOffsetProperty, self).__init__(
-            template, RelativeOffsetValueProvider(template))
+        super(RelativeOffsetValueProperty, self).__init__(
+            template, RelativeOffsetReferenceProvider(template))
 
 
-class StretchedSizeProperty(PropertyBase):
+class StretchSizeProperty(PropertyBase):
 
     def __init__(self, template):
-        super(Offset, self).__init__(
+        super(StretchSizeProperty, self).__init__(
             template, StretchSizeValueProvider(template))
 
 
-class AutoSizeProperty(PropertyBase):
+class AutoSizeValueProperty(PropertyBase):
 
     def __init__(self, template):
-        super(AutoSizeProperty, self).__init__(
+        super(AutoSizeValueProperty, self).__init__(
             template, AutoSizeValueProvider(template))
 
 
-@classproperty_support
-class AddressingMode(object):
-    """Determines whether the addressing of the :class:`Template` is ``absolute``
-    or ``relative``.
-    """
+class AutoSizeReferenceProperty(PropertyBase):
 
-    ABSOLUTE_VALUE = "absolute"
-    RELATIVE_VALUE = "relative"
-    DEFAULT_VALUE = ABSOLUTE_VALUE
-    ADDRESSING_MODES = [ABSOLUTE_VALUE, RELATIVE_VALUE]
-
-    def __init__(self, value=None):
-        self._value = self.DEFAULT_VALUE
-        if value is None:
-            self.value = self.DEFAULT_VALUE
-        else:
-            self.value = value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        if self._is_valid(value):
-            self._value = value
-        else:
-            raise RuntimeError("Expected 'relative' or 'absolute'.")
-
-    def _is_valid(self, value):
-        return value in self.ADDRESSING_MODES
-
-    @classproperty
-    def Absolute(cls):
-        return cls(cls.ABSOLUTE_VALUE)
-
-    @classproperty
-    def Relative(cls):
-        return cls(cls.RELATIVE_VALUE)
-
-    def __eq__(self, other):
-        return self.value == other.value
-
-
-@classproperty_support
-class Sizing(object):
-    """Determines whether the sizing of a :class:`Template` should be ``fix`` or
-    dynamically calculated using ``auto`` or ``stretch``.
-    """
-
-    AUTO_VALUE = "auto"
-    FIX_VALUE = "fix"
-    STRETCH_VALUE = "stretch"
-    DEFAULT_VALUE = AUTO_VALUE
-    SIZING = [AUTO_VALUE, FIX_VALUE, STRETCH_VALUE]
-
-    def __init__(self, value=None):
-        self._value = self.DEFAULT_VALUE
-        if value is None:
-            self.value = self.DEFAULT_VALUE
-        else:
-            self.value = value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        if self._is_valid(value):
-            self._value = value
-        else:
-            raise RuntimeError("Expected 'auto', 'fix' or 'stretch'.")
-
-    def _is_valid(self, value):
-        return value in self.SIZING
-
-    @classproperty
-    def Auto(cls):
-        return cls(cls.AUTO_VALUE)
-
-    @classproperty
-    def Fix(cls):
-        return cls(cls.FIX_VALUE)
-
-    @classproperty
-    def Stretch(cls):
-        return cls(cls.STRETCH_VALUE)
-
-    def __eq__(self, other):
-        return self.value == other.value
-
-
-@classproperty_support
-class ByteOrder(object):
-    """Determines the endianess of the byte-sequence the :class:`Template` is
-    bound to. Valid values are `LittleEndian` or `BigEndian`.
-    """
-
-    LITTLE_ENDIAN_VALUE = "LittleEndian"
-    BIG_ENDIAN_VALUE = "BigEndian"
-    DEFAULT_VALUE = LITTLE_ENDIAN_VALUE
-    BYTE_ORDERS = [LITTLE_ENDIAN_VALUE, BIG_ENDIAN_VALUE]
-
-    def __init__(self, value=None):
-        self._value = self.DEFAULT_VALUE
-        if value is None:
-            self.value = self.DEFAULT_VALUE
-        else:
-            self.value = value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        if self._is_valid(value):
-            self._value = value
-        else:
-            raise RuntimeError("Expected 'LittleEndian' or 'BigEndian'.")
-
-    def _is_valid(self, value):
-        return value in self.BYTE_ORDERS
-
-    @classproperty
-    def LittleEndian(cls):
-        return cls(cls.LITTLE_ENDIAN_VALUE)
-
-    @classproperty
-    def BigEndian(cls):
-        return cls(cls.BIG_ENDIAN_VALUE)
-
-    def __eq__(self, other):
-        return self.value == other.value
+    def __init__(self, template):
+        super(AutoSizeReferenceProperty, self).__init__(
+            template, AutoSizeReferenceProvider(template))

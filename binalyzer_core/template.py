@@ -12,11 +12,9 @@ from anytree import NodeMixin, find_by_attr
 from anytree.util import leftsibling, rightsibling
 
 from .properties import (
-    AddressingMode,
-    Sizing,
     ValueProperty,
-    AutoSizeProperty,
-    RelativeOffsetProperty,
+    AutoSizeValueProperty,
+    RelativeOffsetValueProperty,
 )
 from .context import BackedBindingContext
 
@@ -43,10 +41,10 @@ class Template(NodeMixin, object):
         self.parent = parent
 
         #: :class:`~binalyzer.Offset` of the template
-        self._offset = RelativeOffsetProperty(self)
+        self._offset = RelativeOffsetValueProperty(self)
 
         #: :class:`~binalyzer.Size` of the template
-        self._size = AutoSizeProperty(self)
+        self._size = AutoSizeValueProperty(self)
 
         #: :class:`~binalyzer.PaddingBefore` of the template
         self._padding_before = ValueProperty()
@@ -137,6 +135,9 @@ class Template(NodeMixin, object):
     def boundary_property(self, value):
         self._boundary = value
 
+        #if not isinstance(self.size_property, ValueProperty) and not self.children:
+        #    self.size_property = ValueProperty(self._boundary.value)
+
     @property
     def absolute_address(self):
         """Provides the absolue address of the template within the binary stream.
@@ -144,7 +145,7 @@ class Template(NodeMixin, object):
         if isinstance(self.offset_property, ValueProperty):
             return self.offset
 
-        if isinstance(self.offset_property, RelativeOffsetProperty):
+        if isinstance(self.offset_property, RelativeOffsetValueProperty):
             if self.parent:
                 return self.offset + self.parent.absolute_address
             else:

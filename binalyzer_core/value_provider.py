@@ -9,6 +9,7 @@
     :license: MIT
 """
 from anytree import find_by_attr
+from anytree.util import leftsibling, rightsibling
 
 
 class ValueProviderBase(object):
@@ -57,58 +58,57 @@ class ReferenceValueProvider(ValueProviderBase):
         find_by_attr(self.template.root, self.reference_name).value = value
 
 
-class RelativeOffsetValueProvider(ValueProviderBase):
+class RelativeOffsetCalculator(object):
 
-    def __init__(self, template):
-        self.template = template
-        self._offset = 0
+    def calculate(self, template, ignore_boundary=False):
+        return self._get_relative_offset(template)
 
-    def get_value(self):
-        return self._get_relative_offset() + self._offset
+    def _get_relative_offset(self, template, ignore_boundary=False):
+        relative_offset = template.padding_before
 
-    def set_value(self, value):
-        self._offset = value
+        if not self.ignore_boundary:
+            relative_offset += self._get_boundary_offset_relative_to_parent(
+                template)
 
-    def _get_relative_offset(self):
-        boundary_offset_relative_to_parent = 0
-        boundary_offset_relative_to_sibling = 0
+        relative_offset += self._get_relative_offset_end_of_previous_sibling(
+            template)
 
-        if self.template.boundary > 0:
-            boundary_offset_relative_to_parent = (
-                self.template.parent.offset % self.template.boundary
-            )
+        if not self.ignore_boundary:
+            relative_offset += self._get_boundary_offset_relative_to_sibling(
+                template)
 
-        sibling_relative_offset = self._get_relative_offset_end_of_previous_sibling()
+        return relative_offset
 
+    def _get_boundary_offset_relative_to_parent(self, template):
+        if template.boundary > 0:
+            return template.parent.offset % template.boundary
+        else:
+            return 0
+
+    def _get_boundary_offset_relative_to_sibling(self, template):
+        sibling_relative_offset = self._get_relative_offset_end_of_previous_sibling(template)
         if (
-            self.template.boundary
-            and self.template.boundary > 0
+            template.boundary
+            and template.boundary > 0
             and sibling_relative_offset > 0
-            and sibling_relative_offset % self.template.boundary
+            and sibling_relative_offset % template.boundary
         ):
-            boundary_offset_relative_to_sibling = self.template.boundary - (
-                sibling_relative_offset % self.template.boundary
-            )
+            return template.boundary - (sibling_relative_offset % template.boundary)
+        else:
+            return 0
 
-        return (
-            self.template.padding_before
-            + boundary_offset_relative_to_parent
-            + sibling_relative_offset
-            + boundary_offset_relative_to_sibling
-        )
-
-    def _get_relative_offset_end_of_previous_sibling(self):
+    def _get_relative_offset_end_of_previous_sibling(self, template):
         # Need at least two children to grab previous sibling
-        if self.template.parent and len(self.template.parent.children) >= 2:
+        if template.parent and len(template.parent.children) >= 2:
             index = 0
-            for (count, value) in enumerate(self.template.parent.children):
-                if value == self.template:
+            for (count, value) in enumerate(template.parent.children):
+                if value == template:
                     index = count
                     break
             if index == 0:
                 return 0
             else:
-                previous_sibling = self.template.parent.children[index - 1]
+                previous_sibling = template.parent.children[index - 1]
                 return (
                     previous_sibling.offset
                     + previous_sibling.size
@@ -116,6 +116,33 @@ class RelativeOffsetValueProvider(ValueProviderBase):
                 )
         else:
             return 0
+
+
+class RelativeOffsetValueProvider(RelativeOffsetCalculator, ValueProvider):
+
+    def __init__(self, template, ignore_boundary=False):
+        self.template = template
+        self.ignore_boundary = ignore_boundary
+        super(RelativeOffsetValueProvider, self).__init__()
+
+    def get_value(self):
+        return self.calculate(self.template, self.ignore_boundary) + self._value
+
+    def set_value(self, value):
+        self._value = value
+
+
+class RelativeOffsetReferenceProvider(RelativeOffsetCalculator, ReferenceValueProvider):
+
+    def __init__(self, template, reference_name):
+        super(RelativeOffsetCalculator, self).__init__(
+            template, reference_name)
+
+    def get_value(self):
+        return self.calculate(self.template) + find_by_attr(self.template.root, self.reference_name).value
+
+    def set_value(self, value):
+        find_by_attr(self.template.root, self.reference_name).value = value
 
 
 class AutoSizeValueProvider(ValueProviderBase):
@@ -127,7 +154,7 @@ class AutoSizeValueProvider(ValueProviderBase):
         if self.template.children:
             return self._get_total_size_of_children()
         else:
-            return 0
+            return self.template.boundary
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
@@ -189,17 +216,13 @@ class IdentityValueConverter(object):
 class IntegerValueConverter(object):
 
     def convert(self, value, template):
-        from .properties import ByteOrder
-
-        if template.byte_order == ByteOrder.LittleEndian:
+        if template.byte_order == 'LittleEndian':
             return int.from_bytes(value, byteorder='little')
         else:
             return int.from_bytes(value, byteorder='big')
 
     def convert_back(self, value, template):
-        from .properties import ByteOrder
-
-        if template.byte_order == ByteOrder.LittleEndian:
+        if template.byte_order == 'LittleEndian':
             return value.to_bytes(template.size, 'little')
         else:
             return value.to_bytes(template.size, 'big')

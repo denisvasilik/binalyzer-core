@@ -5,8 +5,6 @@ import io
 from binalyzer_core import (
     Binalyzer,
     Template,
-    ByteOrder,
-    AddressingMode,
     ValueProperty,
 )
 
