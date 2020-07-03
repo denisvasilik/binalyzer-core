@@ -135,9 +135,6 @@ class Template(NodeMixin, object):
     def boundary_property(self, value):
         self._boundary = value
 
-        #if not isinstance(self.size_property, ValueProperty) and not self.children:
-        #    self.size_property = ValueProperty(self._boundary.value)
-
     @property
     def absolute_address(self):
         """Provides the absolue address of the template within the binary stream.
