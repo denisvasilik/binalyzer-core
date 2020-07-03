@@ -55,4 +55,6 @@ from .value_provider import (
     ReferenceValueProvider,
     RelativeOffsetValueProvider,
     RelativeOffsetReferenceProvider,
+    AutoSizeValueProvider,
+    StretchSizeValueProvider,
 )
