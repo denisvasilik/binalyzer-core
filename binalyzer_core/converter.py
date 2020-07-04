@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+    binalyzer_core.converter
+    ~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module implements value converters.
+
+    :copyright: 2020 Denis Vasilík
+    :license: MIT
+"""
+
 
 class IdentityValueConverter(object):
 
