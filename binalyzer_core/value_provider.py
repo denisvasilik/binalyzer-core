@@ -8,14 +8,10 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
+import engine
+
 from anytree import find_by_attr
 from anytree.util import leftsibling, rightsibling
-
-from .calculator import (
-    get_total_size,
-    get_relative_offset,
-    get_max_size,
-)
 
 
 class ValueProviderBase(object):
@@ -72,8 +68,8 @@ class RelativeOffsetValueProvider(ValueProvider):
         super(RelativeOffsetValueProvider, self).__init__()
 
     def get_value(self):
-        return (get_relative_offset(self.template, self.ignore_boundary) +
-            self._value)
+        return (engine.get_relative_offset(self.template, self.ignore_boundary) +
+                self._value)
 
     def set_value(self, value):
         self._value = value
@@ -86,8 +82,8 @@ class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
             template, reference_name)
 
     def get_value(self):
-        return (get_relative_offset(self.template) +
-            find_by_attr(self.template.root, self.reference_name).value)
+        return (engine.get_relative_offset(self.template) +
+                find_by_attr(self.template.root, self.reference_name).value)
 
     def set_value(self, value):
         find_by_attr(self.template.root, self.reference_name).value = value
@@ -99,7 +95,7 @@ class AutoSizeValueProvider(ValueProvider):
         self.template = template
 
     def get_value(self):
-        return get_total_size(self.template)
+        return engine.get_total_size(self.template)
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
@@ -111,7 +107,7 @@ class StretchSizeValueProvider(ValueProvider):
         self.template = template
 
     def get_value(self):
-        return get_max_size(self.template)
+        return engine.get_max_size(self.template)
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
