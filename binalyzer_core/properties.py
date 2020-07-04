@@ -17,8 +17,10 @@ from .value_provider import (
     ReferenceValueProvider,
     AutoSizeValueProvider,
     RelativeOffsetValueProvider,
-    RelativeOffsetReferenceProvider,
+    RelativeOffsetReferenceValueProvider,
     StretchSizeValueProvider,
+)
+from .converter import (
     IdentityValueConverter,
     IntegerValueConverter,
 )
@@ -82,7 +84,7 @@ class RelativeOffsetReferenceProperty(PropertyBase):
 
     def __init__(self, template):
         super(RelativeOffsetValueProperty, self).__init__(
-            template, RelativeOffsetReferenceProvider(template))
+            template, RelativeOffsetReferenceValueProvider(template))
 
 
 class StretchSizeProperty(PropertyBase):

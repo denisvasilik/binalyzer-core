@@ -54,7 +54,7 @@ from .value_provider import (
     FunctionValueProvider,
     ReferenceValueProvider,
     RelativeOffsetValueProvider,
-    RelativeOffsetReferenceProvider,
+    RelativeOffsetReferenceValueProvider,
     AutoSizeValueProvider,
     StretchSizeValueProvider,
 )
