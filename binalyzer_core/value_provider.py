@@ -8,7 +8,7 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-import engine
+from . import engine
 
 from anytree import find_by_attr
 from anytree.util import leftsibling, rightsibling

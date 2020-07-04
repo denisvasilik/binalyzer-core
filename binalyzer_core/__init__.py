@@ -63,7 +63,7 @@ from .value_provider import (
     AutoSizeValueProvider,
     StretchSizeValueProvider,
 )
-from .value_converter import (
+from .converter import (
     IdentityValueConverter,
     IntegerValueConverter,
 )
