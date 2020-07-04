@@ -3,7 +3,7 @@
     binalyzer_core.engine
     ~~~~~~~~~~~~~~~~~~~~~
 
-    This module implements .
+    This module implements the mechanics of the template concept.
 
     :copyright: 2020 Denis Vasilík
     :license: MIT
