@@ -32,6 +32,7 @@ from .properties import (
     StretchSizeProperty,
     RelativeOffsetValueProperty,
     RelativeOffsetReferenceProperty,
+    LEB128UnsignedBindingProperty,
 )
 from .context import (
     BindingContext,
@@ -59,6 +60,7 @@ from .value_provider import (
     FunctionValueProvider,
     ReferenceValueProvider,
     LEB128UnsignedBindingValueProvider,
+    LEB128SizeBindingValueProvider,
     RelativeOffsetValueProvider,
     RelativeOffsetReferenceValueProvider,
     AutoSizeValueProvider,

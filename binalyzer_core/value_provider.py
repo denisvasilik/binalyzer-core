@@ -10,7 +10,7 @@
 """
 from . import engine
 
-from anytree import find_by_attr
+from anytree import findall_by_attr
 from anytree.util import leftsibling, rightsibling
 
 
@@ -51,34 +51,76 @@ class LEB128UnsignedBindingValueProvider(ValueProviderBase):
 
     def __init__(self, template=None):
         self.template = template
+        self._cached_value = None
 
     def get_value(self):
+        if self._cached_value:
+            return self._cached_value
         data = self.template.binding_context.data_provider.data
         absolute_address = self.template.absolute_address
         data.seek(absolute_address)
-        size = 0
-        byte_value = data.read(1)
-        while ((byte_value and 0x80) == 0x80):
+        size = 1
+        byte_value = int.from_bytes(data.read(1), 'little')
+        while ((byte_value & 0x80) == 0x80):
             size += 1
-            byte_value = data.read(1)
+            byte_value = int.from_bytes(data.read(1), 'little')
         data.seek(absolute_address)
-        return data.read(size)
+        self._cached_value = data.read(size)
+        return self._cached_value
 
     def set_value(self, value):
         raise RuntimeError('Not implemented, yet.')
 
+
+class LEB128SizeBindingValueProvider(ValueProviderBase):
+
+    def __init__(self, template=None):
+        self.template = template
+        self._cached_value = None
+
+    def get_value(self):
+        if self._cached_value:
+            return self._cached_value
+        data = self.template.binding_context.data_provider.data
+        absolute_address = self.template.absolute_address
+        data.seek(absolute_address)
+        size = 1
+        byte_value = int.from_bytes(data.read(1), 'little')
+        while ((byte_value & 0x80) == 0x80):
+            size += 1
+            byte_value = data.read(1)
+        self._cached_value = size
+        return self._cached_value
+
+    def set_value(self, value):
+        raise RuntimeError('Not implemented, yet.')
+
+
+def find_by_scope(template, reference_name):
+    while template.parent:
+        result = findall_by_attr(template, reference_name)
+        if result:
+            return result[0]
+        template = template.parent
+    raise RuntimeError('Invalid template reference.')
 
 class ReferenceValueProvider(ValueProviderBase):
 
     def __init__(self, template, reference_name):
         self.template = template
         self.reference_name = reference_name
+        self._cached_value = None
 
     def get_value(self):
-        return find_by_attr(self.template.root, self.reference_name).value
+        if self._cached_value:
+            return self._cached_value
+        self._cached_value = find_by_scope(
+            self.template, self.reference_name).value
+        return self._cached_value
 
     def set_value(self, value):
-        find_by_attr(self.template.root, self.reference_name).value = value
+        self._cached_value = None
+        find_by_scope(self.template, self.reference_name).value = value
 
 
 class RelativeOffsetValueProvider(ValueProvider):
@@ -86,37 +128,51 @@ class RelativeOffsetValueProvider(ValueProvider):
     def __init__(self, template, ignore_boundary=False):
         self.template = template
         self.ignore_boundary = ignore_boundary
+        self._cached_value = None
         super(RelativeOffsetValueProvider, self).__init__()
 
     def get_value(self):
-        return (engine.get_relative_offset(self.template, self.ignore_boundary) +
-                self._value)
+        if self._cached_value:
+            return self._cached_value
+        self._cached_value = (engine.get_relative_offset(self.template,
+                                                         self.ignore_boundary) + self._value)
+        return self._cached_value
 
     def set_value(self, value):
+        self._cached_value = None
         self._value = value
 
 
 class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
 
     def __init__(self, template, reference_name):
+        self._cached_value = None
         super(RelativeOffsetCalculator, self).__init__(
             template, reference_name)
 
     def get_value(self):
-        return (engine.get_relative_offset(self.template) +
-                find_by_attr(self.template.root, self.reference_name).value)
+        if self._cached_value:
+            return self._cached_value
+        self._cached_value = (engine.get_relative_offset(self.template) +
+                              find_by_scope(self.template, self.reference_name).value)
+        return self._cached_value
 
     def set_value(self, value):
-        find_by_attr(self.template.root, self.reference_name).value = value
+        self._cached_value = None
+        find_by_scope(self.template, self.reference_name).value = value
 
 
 class AutoSizeValueProvider(ValueProvider):
 
     def __init__(self, template):
+        self._cached_value = None
         self.template = template
 
     def get_value(self):
-        return engine.get_total_size(self.template)
+        if self._cached_value:
+            return self._cached_value
+        self._cached_value = engine.get_total_size(self.template)
+        return self._cached_value
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
@@ -125,9 +181,12 @@ class AutoSizeValueProvider(ValueProvider):
 class StretchSizeValueProvider(ValueProvider):
 
     def __init__(self, template):
+        self._cached_value = None
         self.template = template
 
     def get_value(self):
+        if self._cached_value:
+            return self._cached_value
         return engine.get_max_size(self.template)
 
     def set_value(self, value):
