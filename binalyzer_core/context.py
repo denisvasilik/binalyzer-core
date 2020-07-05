@@ -35,12 +35,12 @@ class BindingContext(object):
     def __init__(
         self, template_provider: TemplateProviderBase, data_provider: DataProviderBase
     ):
+        #: The data provider to get the binary stream from.
+        self.data_provider = data_provider
+
         #: The template provider to get the template from.
         self.template_provider = template_provider
         self.template_provider.template.binding_context = self
-
-        #: The data provider to get the binary stream from.
-        self.data_provider = data_provider
 
     @property
     def template(self):

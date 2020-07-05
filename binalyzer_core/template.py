@@ -15,6 +15,7 @@ from .properties import (
     ValueProperty,
     AutoSizeValueProperty,
     RelativeOffsetValueProperty,
+    ReferenceProperty,
 )
 from .context import BackedBindingContext
 
@@ -28,6 +29,7 @@ class Template(NodeMixin, object):
     """
 
     def __init__(self, name=None, parent=None, children=None, **kwargs):
+        self._count = ValueProperty()
         self._binding_context = BackedBindingContext(self)
 
         #: The name of the template
@@ -136,6 +138,22 @@ class Template(NodeMixin, object):
         self._boundary = value
 
     @property
+    def count(self):
+        return self._count.value
+
+    @count.setter
+    def count(self, value):
+        self._count.value = value
+
+    @property
+    def count_property(self):
+        return self._count
+
+    @count_property.setter
+    def count_property(self, value):
+        self._count = value
+
+    @property
     def absolute_address(self):
         """Provides the absolue address of the template within the binary stream.
         """
@@ -175,6 +193,13 @@ class Template(NodeMixin, object):
     @binding_context.setter
     def binding_context(self, value):
         self._binding_context = value
+        if self._count.value > 1:
+            for i in range(self.count):
+                copied_element = copy.deepcopy(self)
+                copied_element.name = self.name + "-" + str(i + 1)
+                copied_element.parent = self.parent
+            self.name = self.name + "-0"
+            self.parent.__dict__[self.name.replace("-", "_")] = self
         self._propagate_binding_context()
 
     def _post_attach(self, parent):
