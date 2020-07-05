@@ -19,10 +19,12 @@ from .value_provider import (
     RelativeOffsetValueProvider,
     RelativeOffsetReferenceValueProvider,
     StretchSizeValueProvider,
+    LEB128UnsignedBindingValueProvider,
 )
 from .converter import (
     IdentityValueConverter,
     IntegerValueConverter,
+    LEB128UnsignedValueConverter,
 )
 
 
@@ -51,9 +53,17 @@ class PropertyBase(object):
 
 class ValueProperty(PropertyBase):
 
-    def __init__(self, value=0, template=None):
+    def __init__(
+        self,
+        value=0,
+        template=None,
+        value_converter=IdentityValueConverter()
+    ):
         super(ValueProperty, self).__init__(
-            template, ValueProvider(value))
+            template,
+            ValueProvider(value),
+            value_converter,
+        )
 
 
 class FunctionProperty(PropertyBase):
@@ -63,13 +73,28 @@ class FunctionProperty(PropertyBase):
             template, FunctionValueProvider())
 
 
+class LEB128UnsignedBindingProperty(PropertyBase):
+
+    def __init__(self, template):
+        super(LEB128UnsignedBindingProperty, self).__init(
+            template=template,
+            value_provider=LEB128UnsignedBindingValueProvider(template),
+            value_converter=LEB128UnsignedValueConverter(),
+        )
+
+
 class ReferenceProperty(PropertyBase):
 
-    def __init__(self, template, reference_name):
+    def __init__(
+        self,
+        template,
+        reference_name,
+        value_converter=IntegerValueConverter()
+    ):
         super(ReferenceProperty, self).__init__(
             template,
             ReferenceValueProvider(template, reference_name),
-            IntegerValueConverter()
+            value_converter,
         )
 
 

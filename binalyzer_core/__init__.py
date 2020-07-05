@@ -58,6 +58,7 @@ from .value_provider import (
     ValueProvider,
     FunctionValueProvider,
     ReferenceValueProvider,
+    LEB128UnsignedBindingValueProvider,
     RelativeOffsetValueProvider,
     RelativeOffsetReferenceValueProvider,
     AutoSizeValueProvider,
@@ -66,4 +67,5 @@ from .value_provider import (
 from .converter import (
     IdentityValueConverter,
     IntegerValueConverter,
+    LEB128UnsignedValueConverter,
 )

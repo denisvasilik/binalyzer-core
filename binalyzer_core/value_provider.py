@@ -47,6 +47,27 @@ class FunctionValueProvider(ValueProviderBase):
         raise RuntimeError('Not supported')
 
 
+class LEB128UnsignedBindingValueProvider(ValueProviderBase):
+
+    def __init__(self, template=None):
+        self.template = template
+
+    def get_value(self):
+        data = self.template.binding_context.data_provider.data
+        absolute_address = self.template.absolute_address
+        data.seek(absolute_address)
+        size = 0
+        byte_value = data.read(1)
+        while ((byte_value and 0x80) == 0x80):
+            size += 1
+            byte_value = data.read(1)
+        data.seek(absolute_address)
+        return data.read(size)
+
+    def set_value(self, value):
+        raise RuntimeError('Not implemented, yet.')
+
+
 class ReferenceValueProvider(ValueProviderBase):
 
     def __init__(self, template, reference_name):
