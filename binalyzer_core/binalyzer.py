@@ -31,10 +31,10 @@ class Binalyzer(object):
             template = Template()
 
         if data is None:
-            data = io.BytesIO()
-
-        self._binding_context = BindingContext(TemplateProvider(template),
-                                               DataProvider(data))
+            self._binding_context = template.binding_context
+        else:
+            self._binding_context = BindingContext(TemplateProvider(template),
+                                                   DataProvider(data))
 
     @property
     def data(self):

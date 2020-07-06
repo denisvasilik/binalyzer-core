@@ -98,11 +98,11 @@ class LEB128SizeBindingValueProvider(ValueProviderBase):
 
 def find_by_scope(template, reference_name):
     while template.parent:
-        result = findall_by_attr(template, reference_name)
+        result = findall_by_attr(template.parent, reference_name)
         if result:
             return result[0]
         template = template.parent
-    raise RuntimeError('Invalid template reference.')
+    raise RuntimeError('Invalid template reference from "' + template.name + '" to "' + reference_name + '".')
 
 class ReferenceValueProvider(ValueProviderBase):
 

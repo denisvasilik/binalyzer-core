@@ -11,6 +11,8 @@
 from anytree import NodeMixin, find_by_attr
 from anytree.util import leftsibling, rightsibling
 
+import copy
+
 from .properties import (
     ValueProperty,
     AutoSizeValueProperty,
@@ -29,7 +31,7 @@ class Template(NodeMixin, object):
     """
 
     def __init__(self, name=None, parent=None, children=None, **kwargs):
-        self._count = ValueProperty()
+        self._count = ValueProperty(1)
         self._binding_context = BackedBindingContext(self)
 
         #: The name of the template
@@ -200,14 +202,20 @@ class Template(NodeMixin, object):
                 copied_element.parent = self.parent
             self.name = self.name + "-0"
             self.parent.__dict__[self.name.replace("-", "_")] = self
+        elif self._count.value == 0:
+            self.parent = None
+            return
         self._propagate_binding_context()
 
     def _post_attach(self, parent):
-        if self.name:
-            parent.__dict__[self.name.replace("-", "_")] = self
+        self._add_name_to_parent(parent)
         self.binding_context = parent.binding_context
 
     def _propagate_binding_context(self):
         for child in self.children:
             child.binding_context = self.binding_context
             child._propagate_binding_context()
+
+    def _add_name_to_parent(self, parent):
+        if self.name:
+            parent.__dict__[self.name.replace("-", "_")] = self

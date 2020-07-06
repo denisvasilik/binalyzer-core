@@ -12,7 +12,7 @@ from anytree.util import rightsibling
 
 
 def get_total_size(template):
-    if template.children:
+    if get_children(template):
         return get_total_size_of_children(template)
     else:
         return template.boundary
@@ -50,7 +50,7 @@ def get_relative_offset(template, ignore_boundary=False):
 
 
 def get_total_size_of_children(template):
-    return max(get_total_size_of_child(child) for child in template.children)
+    return max(get_total_size_of_child(child) for child in get_children(template))
 
 
 def get_total_size_of_child(child):
@@ -91,16 +91,16 @@ def get_boundary_offset_relative_to_sibling(template):
 
 def get_relative_offset_end_of_previous_sibling(template):
     # Need at least two children to grab previous sibling
-    if template.parent and len(template.parent.children) >= 2:
+    if template.parent and len(get_children(template.parent)) >= 2:
         index = 0
-        for (count, value) in enumerate(template.parent.children):
+        for (count, value) in enumerate(get_children(template.parent)):
             if value == template:
-                index = count
+                index=count
                 break
         if index == 0:
             return 0
         else:
-            previous_sibling = template.parent.children[index - 1]
+            previous_sibling=get_children(template.parent)[index - 1]
             return (
                 previous_sibling.offset
                 + previous_sibling.size
@@ -108,3 +108,7 @@ def get_relative_offset_end_of_previous_sibling(template):
             )
     else:
         return 0
+
+
+def get_children(template):
+    return template.children
