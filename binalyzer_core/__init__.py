@@ -17,7 +17,10 @@ __version__ = "{}".format(__tag__)
 __commit__ = "0000000"
 
 from .binalyzer import (
-    Binalyzer
+    Binalyzer,
+)
+from .extension import (
+    BinalyzerExtension,
 )
 from .template import (
     Template,
