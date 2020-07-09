@@ -12,7 +12,7 @@ import io
 
 from typing import Optional
 
-from .context import BackedBindingContext
+from .context import BindingContext
 from .template_provider import TemplateProvider
 from .data_provider import DataProvider
 from .template import Template
@@ -27,15 +27,19 @@ class Binalyzer(object):
     """
 
     def __init__(self, template: Optional[Template] = None, data: Optional[io.IOBase] = None):
-        #: A list of registered Binalyzer extensions.
-        self.extensions = {}
-
         if template is None:
             template = Template()
 
-        self._binding_context = BackedBindingContext(Template())
+        if data is None:
+            data = io.BytesIO()
 
-        self._register_extensions()
+        self._binding_context = BindingContext(TemplateProvider(template),
+                                               DataProvider(data))
+
+        #: A list of registered Binalyzer extensions.
+        self.extensions = {}
+
+        self._registerextensions()
 
     @property
     def data(self):
@@ -126,5 +130,5 @@ class Binalyzer(object):
             return self.__dict__[name]
         return None
 
-    def _register_extensions(self):
+    def _registerextensions(self):
         pass
