@@ -71,7 +71,7 @@ def get_multiple_of_boundary(value, boundary):
 
 
 def get_boundary_offset_relative_to_parent(template):
-    if template.boundary > 0:
+    if template.boundary > 0 and template.parent:
         return template.parent.offset % template.boundary
     else:
         return 0
