@@ -130,5 +130,5 @@ class Binalyzer(object):
             return self.__dict__[name]
         return None
 
-    def _registerextensions(self):
+    def _register_extensions(self):
         pass
