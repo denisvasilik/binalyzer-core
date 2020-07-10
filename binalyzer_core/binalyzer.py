@@ -39,7 +39,7 @@ class Binalyzer(object):
         #: A list of registered Binalyzer extensions.
         self.extensions = {}
 
-        self._registerextensions()
+        self._register_extensions()
 
     @property
     def data(self):
