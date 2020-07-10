@@ -19,10 +19,12 @@ def get_total_size(template):
 
 
 def get_max_size(template):
+    from .properties import AutoSizeValueProperty
+
     next_sibling = rightsibling(template)
     if next_sibling:
         return next_sibling.offset - template.offset
-    elif template.parent:
+    elif template.parent and not isinstance(template.parent.size_property, AutoSizeValueProperty):
         return template.parent.size - template.offset
     elif template.binding_context.data:
         data = template.binding_context.data
@@ -95,12 +97,12 @@ def get_relative_offset_end_of_previous_sibling(template):
         index = 0
         for (count, value) in enumerate(get_children(template.parent)):
             if value == template:
-                index=count
+                index = count
                 break
         if index == 0:
             return 0
         else:
-            previous_sibling=get_children(template.parent)[index - 1]
+            previous_sibling = get_children(template.parent)[index - 1]
             return (
                 previous_sibling.offset
                 + previous_sibling.size
