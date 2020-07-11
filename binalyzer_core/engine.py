@@ -26,6 +26,8 @@ def get_max_size(template):
         return next_sibling.offset - template.offset
     elif template.parent and not isinstance(template.parent.size_property, AutoSizeValueProperty):
         return template.parent.size - template.offset
+    elif template.parent and template.parent.boundary > 0:
+        return template.parent.boundary
     elif template.binding_context.data:
         data = template.binding_context.data
         data.seek(0, 2)
