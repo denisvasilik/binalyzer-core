@@ -1,5 +1,40 @@
 # Binalyzer Core
 
+This repository implements Binalyzer's core features. Functionality that is not
+central to Binalyzer's concept is added through its extension mechanism.
+
+Features:
+
+* Template Engine
+* Template Providers
+* Data Binding System
+* Data Providers
+* Data Converter
+* Extension Mechanism
+
+## Repositories
+
+Binalyzer spans accross several GitHub repositories:
+
+* [binalyzer]
+* [binalyzer-core]
+* [binalyzer-cli]
+* [binalyzer-template-provider]
+* [binalyzer-data-provider]
+* [binalyzer-rest]
+* [binalyzer-lsp]
+* [binalyzer-docker]
+* [binalyzer-examples]
+
+[binalyzer]: https://github.com/denisvasilik/binalyzer
+[binalyzer-core]: https://github.com/denisvasilik/binalyzer-core
+[binalyzer-cli]: https://github.com/denisvasilik/binalyzer-cli
+[binalyzer-template-provider]: https://github.com/denisvasilik/binalyzer-template-provider
+[binalyzer-data-provider]: https://github.com/denisvasilik/binalyzer-data-provider
+[binalyzer-rest]: https://github.com/denisvasilik/binalyzer-rest
+[binalyzer-lsp]: https://github.com/denisvasilik/binalyzer-lsp
+[binalyzer-docker]: https://github.com/denisvasilik/binalyzer-docker
+[binalyzer-examples]: https://github.com/denisvasilik/binalyzer-examples
 
 ## Documentation
 
