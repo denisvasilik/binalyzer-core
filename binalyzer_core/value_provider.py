@@ -102,7 +102,10 @@ def find_by_scope(template, reference_name):
         if result:
             return result[0]
         template = template.parent
-    raise RuntimeError('Invalid template reference from "' + template.name + '" to "' + reference_name + '".')
+    raise RuntimeError(
+        'Unable to find referenced template "' + reference_name + '".'
+    )
+
 
 class ReferenceValueProvider(ValueProviderBase):
 
@@ -119,8 +122,10 @@ class ReferenceValueProvider(ValueProviderBase):
         return self._cached_value
 
     def set_value(self, value):
-        self._cached_value = None
-        find_by_scope(self.template, self.reference_name).value = value
+        raise RuntimeError(
+            'Unable to assign a value to a reference. Consider setting the '
+            'value of the referenced template instead.'
+        )
 
 
 class RelativeOffsetValueProvider(ValueProvider):
