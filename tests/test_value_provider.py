@@ -1,3 +1,9 @@
+"""
+    test_value_provider
+    ~~~~~~~~~~~~~~~~~~~
+
+    This module implements tests for the value provider module.
+"""
 import io
 import pytest
 
@@ -63,8 +69,10 @@ def test_reference_value_provider_set_value():
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
     template_c.size = 4
+    template_c.value = bytes([0x01, 0x02, 0x03, 0x04])
     value_provider = ReferenceValueProvider(template_b, 'c')
-    value_provider.set_value(bytes([0x01, 0x02, 0x03, 0x04]))
+    with pytest.raises(RuntimeError):
+        value_provider.set_value(bytes([0x07, 0x08, 0x09, 0x0A]))
     assert value_provider.get_value() == bytes([0x01, 0x02, 0x03, 0x04])
 
 

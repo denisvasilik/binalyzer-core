@@ -1,3 +1,9 @@
+"""
+    test_binalyzer
+    ~~~~~~~~~~~~~~
+
+    This module implements tests for the Binalyzer object.
+"""
 import pytest
 import io
 
@@ -112,6 +118,7 @@ def test_add_extension_at_object_creation():
 def test_add_extension():
     mock = MockExtension(None)
     binalyzer = Binalyzer()
+    binalyzer.extensions = {}
     binalyzer.add_extension('mock', mock)
     assert binalyzer.has_extension('mock')
     assert len(binalyzer.extensions) == 1
@@ -136,6 +143,7 @@ def test_del_non_existent_extension():
 
 def test_del_extension():
     binalyzer = Binalyzer()
+    binalyzer.extensions = {}
     mock = MockExtension(binalyzer)
     assert binalyzer.has_extension('mock')
     assert len(binalyzer.extensions) == 1
@@ -149,6 +157,7 @@ def test_del_extension():
 
 def test_dispose_extension():
     binalyzer = Binalyzer()
+    binalyzer.extensions = {}
     mock = MockExtension(binalyzer)
     assert binalyzer.has_extension('mock')
     assert len(binalyzer.extensions) == 1

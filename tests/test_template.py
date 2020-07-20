@@ -1,3 +1,9 @@
+"""
+    test_template
+    ~~~~~~~~~~~~~
+
+    This module implements tests for the properties module.
+"""
 import unittest
 import pytest
 import io
@@ -6,19 +12,30 @@ from binalyzer_core import (
     Binalyzer,
     Template,
     ValueProperty,
+    RelativeOffsetValueProperty,
+    AutoSizeValueProperty,
+    BackedBindingContext
 )
 
 
 def test_default_instantiation():
     template = Template()
-    assert template.name == None
-    assert template.parent == None
+    assert template.name is None
+    assert template.parent is None
     assert template.children == ()
+    assert template.absolute_address == 0
     assert template.offset == 0
     assert template.size == 0
     assert template.boundary == 0
     assert template.padding_before == 0
     assert template.padding_after == 0
+    assert template.value == bytes()
+    assert isinstance(template.offset_property, RelativeOffsetValueProperty)
+    assert isinstance(template.size_property, AutoSizeValueProperty)
+    assert isinstance(template.padding_before_property, ValueProperty)
+    assert isinstance(template.padding_after_property, ValueProperty)
+    assert isinstance(template.boundary_property, ValueProperty)
+    assert isinstance(template.binding_context, BackedBindingContext)
 
 
 def test_dynamic_child_attribute_creation():
