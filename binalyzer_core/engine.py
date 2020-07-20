@@ -11,14 +11,38 @@
 from anytree.util import rightsibling
 
 
-def get_total_size(template):
-    if get_children(template):
-        return get_total_size_of_children(template)
+def get_offset(template, ignore_boundary=False):
+    """Returns the offset relative to a parent or predecessor taking a given
+    boundary into account. It is possible to ignore the boundary by setting
+    `ìgnore_boundary` to `True`.
+    """
+    offset = template.padding_before
+
+    if not ignore_boundary:
+        offset += _get_boundary_offset_relative_to_parent(template)
+
+    offset += _get_offset_at_end_of_predecessor(template)
+
+    if not ignore_boundary:
+        offset += _get_boundary_offset_at_end_of_predecessor(template)
+
+    return offset
+
+
+def get_size(template):
+    """Returns the actual size of the given template taking a given boundary
+    into account.
+    """
+    if template.children:
+        return max(_get_size_of_child(child) for child in template.children)
     else:
         return template.boundary
 
 
 def get_max_size(template):
+    """Returns a template's maximum possible size depending on the offset of
+    its successor or size of it's parent.
+    """
     from .properties import AutoSizeValueProperty
 
     next_sibling = rightsibling(template)
@@ -36,34 +60,13 @@ def get_max_size(template):
         return 0
 
 
-def get_relative_offset(template, ignore_boundary=False):
-    relative_offset = template.padding_before
-
-    if not ignore_boundary:
-        relative_offset += get_boundary_offset_relative_to_parent(
-            template)
-
-    relative_offset += get_relative_offset_end_of_previous_sibling(
-        template)
-
-    if not ignore_boundary:
-        relative_offset += get_boundary_offset_relative_to_sibling(
-            template)
-
-    return relative_offset
-
-
-def get_total_size_of_children(template):
-    return max(get_total_size_of_child(child) for child in get_children(template))
-
-
-def get_total_size_of_child(child):
+def _get_size_of_child(child):
     # NOTE: child.offset already contains the value of padding-before!!!
     value = child.offset + child.size + child.padding_after
-    return get_multiple_of_boundary(value, child.parent.boundary)
+    return _get_multiple_of_boundary(value, child.parent.boundary)
 
 
-def get_multiple_of_boundary(value, boundary):
+def _get_multiple_of_boundary(value, boundary):
     if boundary == 0:
         return value
     boundary_multiplier = int(value / boundary)
@@ -72,25 +75,18 @@ def get_multiple_of_boundary(value, boundary):
     return boundary_multiplier * boundary
 
 
-def get_boundary_offset_relative_to_parent(template):
-    if template.boundary > 0 and template.parent:
-        return template.parent.offset % template.boundary
-    else:
-        return 0
-
-
-def get_relative_offset_end_of_previous_sibling(template):
+def _get_offset_at_end_of_predecessor(template):
     # Need at least two children to grab previous sibling
-    if template.parent and len(get_children(template.parent)) >= 2:
+    if template.parent and len(template.parent.children) >= 2:
         index = 0
-        for (count, value) in enumerate(get_children(template.parent)):
+        for (count, value) in enumerate(template.parent.children):
             if value == template:
                 index = count
                 break
         if index == 0:
             return 0
         else:
-            previous_sibling = get_children(template.parent)[index - 1]
+            previous_sibling = template.parent.children[index - 1]
             return (
                 previous_sibling.offset
                 + previous_sibling.size
@@ -100,19 +96,20 @@ def get_relative_offset_end_of_previous_sibling(template):
         return 0
 
 
-def get_boundary_offset_relative_to_sibling(template):
-    sibling_relative_offset = get_relative_offset_end_of_previous_sibling(
-        template)
-    if (
-        template.boundary
-        and template.boundary > 0
-        and sibling_relative_offset > 0
-        and sibling_relative_offset % template.boundary
-    ):
-        return template.boundary - (sibling_relative_offset % template.boundary)
+def _get_boundary_offset_relative_to_parent(template):
+    if template.parent:
+        return _get_boundary_offset(template.parent.offset, template.boundary)
     else:
         return 0
 
 
-def get_children(template):
-    return template.children
+def _get_boundary_offset_at_end_of_predecessor(template):
+    offset = _get_offset_at_end_of_predecessor(template)
+    return _get_boundary_offset(offset, template.boundary)
+
+
+def _get_boundary_offset(offset, boundary):
+    if (boundary and offset % boundary):
+        return boundary - (offset % boundary)
+    else:
+        return 0

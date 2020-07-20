@@ -139,7 +139,7 @@ class RelativeOffsetValueProvider(ValueProvider):
     def get_value(self):
         if self._cached_value:
             return self._cached_value
-        self._cached_value = (engine.get_relative_offset(self.template,
+        self._cached_value = (engine.get_offset(self.template,
                                                          self.ignore_boundary) + self._value)
         return self._cached_value
 
@@ -158,7 +158,7 @@ class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
     def get_value(self):
         if self._cached_value:
             return self._cached_value
-        self._cached_value = (engine.get_relative_offset(self.template) +
+        self._cached_value = (engine.get_offset(self.template) +
                               find_by_scope(self.template, self.reference_name).value)
         return self._cached_value
 
@@ -176,7 +176,7 @@ class AutoSizeValueProvider(ValueProvider):
     def get_value(self):
         if self._cached_value:
             return self._cached_value
-        self._cached_value = engine.get_total_size(self.template)
+        self._cached_value = engine.get_size(self.template)
         return self._cached_value
 
     def set_value(self, value):
