@@ -6,7 +6,7 @@
 """
 import pytest
 
-from binalyzer import (
+from binalyzer_core import (
     ReferenceProperty,
     Template,
 )
