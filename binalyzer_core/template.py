@@ -184,6 +184,9 @@ class Template(NodeMixin, object):
 
     @value.setter
     def value(self, value):
+        # FIX ME: Use event mechanism for decoupling (dependency inversion).
+        if isinstance(self.size_property, AutoSizeValueProperty):
+            self.size = len(value)
         self.binding_context.data_provider.write(self, value)
 
     @property
