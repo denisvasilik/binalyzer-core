@@ -199,16 +199,18 @@ class Template(NodeMixin, object):
     def binding_context(self, value):
         self._binding_context = value
         if self._count.value > 1:
+            self.children = []
             for i in range(self.count):
-                copied_element = copy.deepcopy(self)
-                copied_element.name = self.name + "-" + str(i + 1)
-                copied_element.parent = self.parent
-            self.name = self.name + "-0"
-            self.parent.__dict__[self.name.replace("-", "_")] = self
+                child = Template()
+                child.name = self.name + "-" + str(i)
+                child.parent = self
+                # force pre-caching the value during tree population
+                _absolute_address = child.absolute_address
+                child.size = self.size
+            self.__dict__[self.name.replace("-", "_")] = self
         elif self._count.value == 0:
             self.parent = None
-            return
-        self._propagate_binding_context()
+            self._propagate_binding_context()
 
     def _post_attach(self, parent):
         self._add_name_to_parent(parent)
@@ -217,7 +219,6 @@ class Template(NodeMixin, object):
     def _propagate_binding_context(self):
         for child in self.children:
             child.binding_context = self.binding_context
-            child._propagate_binding_context()
 
     def _add_name_to_parent(self, parent):
         if self.name:
