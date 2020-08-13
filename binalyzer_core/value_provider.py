@@ -65,7 +65,9 @@ class LEB128UnsignedBindingValueProvider(ValueProviderBase):
             size += 1
             byte_value = int.from_bytes(data.read(1), 'little')
         data.seek(absolute_address)
-        self._cached_value = data.read(size)
+        leb128_value = list(data.read(size))
+        leb128_value.reverse()
+        self._cached_value = bytes(leb128_value)
         return self._cached_value
 
     def set_value(self, value):
@@ -88,7 +90,7 @@ class LEB128SizeBindingValueProvider(ValueProviderBase):
         byte_value = int.from_bytes(data.read(1), 'little')
         while ((byte_value & 0x80) == 0x80):
             size += 1
-            byte_value = data.read(1)
+            byte_value = int.from_bytes(data.read(1), 'little')
         self._cached_value = size
         return self._cached_value
 
