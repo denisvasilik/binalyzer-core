@@ -54,7 +54,7 @@ class LEB128UnsignedBindingValueProvider(ValueProviderBase):
         self._cached_value = None
 
     def get_value(self):
-        if self._cached_value:
+        if not self._cached_value is None:
             return self._cached_value
         data = self.template.binding_context.data_provider.data
         absolute_address = self.template.absolute_address
@@ -81,7 +81,7 @@ class LEB128SizeBindingValueProvider(ValueProviderBase):
         self._cached_value = None
 
     def get_value(self):
-        if self._cached_value:
+        if not self._cached_value is None:
             return self._cached_value
         data = self.template.binding_context.data_provider.data
         absolute_address = self.template.absolute_address
@@ -117,7 +117,7 @@ class ReferenceValueProvider(ValueProviderBase):
         self._cached_value = None
 
     def get_value(self):
-        if self._cached_value:
+        if not self._cached_value is None:
             return self._cached_value
         self._cached_value = find_by_scope(
             self.template, self.reference_name).value
@@ -139,7 +139,7 @@ class RelativeOffsetValueProvider(ValueProvider):
         super(RelativeOffsetValueProvider, self).__init__()
 
     def get_value(self):
-        if self._cached_value:
+        if not self._cached_value is None:
             return self._cached_value
         self._cached_value = (engine.get_offset(self.template,
                                                          self.ignore_boundary) + self._value)
@@ -158,7 +158,7 @@ class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
             template, reference_name)
 
     def get_value(self):
-        if self._cached_value:
+        if not self._cached_value is None:
             return self._cached_value
         self._cached_value = (engine.get_offset(self.template) +
                               find_by_scope(self.template, self.reference_name).value)
@@ -176,7 +176,7 @@ class AutoSizeValueProvider(ValueProvider):
         self.template = template
 
     def get_value(self):
-        if self._cached_value:
+        if not self._cached_value is None:
             return self._cached_value
         self._cached_value = engine.get_size(self.template)
         return self._cached_value
@@ -192,7 +192,7 @@ class StretchSizeValueProvider(ValueProvider):
         self.template = template
 
     def get_value(self):
-        if self._cached_value:
+        if not self._cached_value is None:
             return self._cached_value
         return engine.get_max_size(self.template)
 
