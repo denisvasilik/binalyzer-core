@@ -32,6 +32,9 @@ class Template(NodeMixin, object):
 
     def __init__(self, name=None, parent=None, children=None, **kwargs):
         self._count = ValueProperty(1)
+
+        self.prototypes = []
+
         self._binding_context = BackedBindingContext(self)
 
         #: The name of the template
@@ -199,18 +202,38 @@ class Template(NodeMixin, object):
     def binding_context(self, value):
         self._binding_context = value
         if self._count.value > 1:
+            # create duplications of itself
             self.children = []
             for i in range(self.count):
                 child = Template()
                 child.name = self.name + "-" + str(i)
                 child.parent = self
+                # Copy property instances for duplicates
+                if isinstance(self.size_property, AutoSizeValueProperty):
+                    pass
+                else:
+                    child.size_property = copy.copy(self.size_property)
+
                 # force pre-caching the value during tree population
+                for prototype in self.prototypes:
+                    prototype_template = Template()
+                    prototype_template.name = prototype.name
+                    prototype_template.parent = child
+                    prototype_template.size_property = copy.deepcopy(prototype.size_property)
+                    prototype_template.size_property.template = prototype_template
+                    if isinstance(prototype_template.size_property, ReferenceProperty):
+                        prototype_template.size_property.value_provider.template = prototype_template
+                    # Currently not supported, node copy method must be created first.
+                    # prototype_template.children
+                # Cache size and offsets
+                _size = child.size
                 _absolute_address = child.absolute_address
-                child.size = self.size
             self.__dict__[self.name.replace("-", "_")] = self
-        elif self._count.value == 0:
-            self.parent = None
+        elif self._count.value == 1:
             self._propagate_binding_context()
+        elif self._count.value == 0:
+            # remote itself from tree
+            self.parent = None
 
     def _post_attach(self, parent):
         self._add_name_to_parent(parent)
