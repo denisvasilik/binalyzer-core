@@ -26,17 +26,16 @@ from anytree import findall
 
 class BindingEngine(object):
 
-    def __init__(self, binding_context=None, template_factory=None):
-        self.binding_context = binding_context
+    def __init__(self, template_factory=None):
         self.template_factory = template_factory
         if self.template_factory is None:
             self.template_factory = TemplateFactory()
 
-    def create_dom(self, tom):
+    def create_dom(self, tom, binding_context):
         # (1) Clone TOM
         dom = self.template_factory.clone(tom)
         # (2) Bind data to DOM
-        self.bind(dom, self.binding_context)
+        self.bind(dom, binding_context)
         # (3) Expand DOM
         self.expand_dom(dom)
         # (4) Return DOM
@@ -96,7 +95,7 @@ class BindingContext(object):
         #: The data provider to get the binary stream from.
         self.data_provider = data_provider
 
-        self._binding_engine = BindingEngine(self)
+        self._binding_engine = BindingEngine()
 
         #: The template provider to get the template from.
         self.template_provider = template_provider
@@ -111,7 +110,8 @@ class BindingContext(object):
         """
         if self._dom is None:
             self._dom = self._binding_engine.create_dom(
-                self.template_provider.template
+                self.template_provider.template,
+                self
             )
         return self._dom
 
@@ -120,7 +120,8 @@ class BindingContext(object):
         self.template_provider.template = value
         self.template_provider.template.binding_context = self
         self._dom = self._binding_engine.create_dom(
-            self.template_provider.template
+            self.template_provider.template,
+            self
         )
 
     @property
