@@ -26,7 +26,7 @@ from anytree import findall
 
 class BindingEngine(object):
 
-    def __init__(self, binding_context, template_factory=None):
+    def __init__(self, binding_context=None, template_factory=None):
         self.binding_context = binding_context
         self.template_factory = template_factory
         if self.template_factory is None:
@@ -72,6 +72,7 @@ class BindingEngine(object):
             duplicate.parent = expandable.parent
             duplicate.binding_context = expandable.binding_context
             duplicate.children = copy.deepcopy(expandable.children)
+            duplicate.size_property = copy.copy(expandable.size_property)
         # remove expandable from DOM
         expandable.parent = None
 
