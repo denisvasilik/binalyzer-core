@@ -8,6 +8,8 @@
 from binalyzer_core.context import BindingEngine, TemplateFactory
 from binalyzer_template_provider import XMLTemplateParser
 
+from binalyzer_core import Binalyzer
+
 from anytree import findall
 
 def test_template_factory():
@@ -18,19 +20,6 @@ def test_template_factory():
     duplicate = TemplateFactory().clone(prototype)
 
     assert prototype.name == duplicate.name
-
-def test_binding_engine_copy():
-    binding_engine = BindingEngine()
-    template_description = """
-        <template name="root"></template>
-    """
-    tom = XMLTemplateParser(template_description).parse()
-    dom = binding_engine.copy_tree(tom)
-
-    assert dom.name == "root"
-    assert tom.name == "root"
-    assert id(dom) != id(tom)
-
 
 def test_dom_expansion():
     template_description = """
@@ -45,10 +34,16 @@ def test_dom_expansion():
     """
     tom = XMLTemplateParser(template_description).parse()
 
-    binding_engine = BindingEngine()
-    dom = binding_engine.create_dom(tom, tom.binding_context)
+    binalyzer = Binalyzer()
+    binalyzer.template = tom
+    dom = binalyzer.template
 
-    dom
+    assert dom.name == tom.name
+    assert id(dom) != id(tom)
+    assert len(list(dom.children)) == 2
+    assert len(list(dom.b.children)) == 4
+    assert len(list(dom.b.c.children)) == 3
 
-    # assert nodes[0].name == "a"
-    # assert nodes[1].name == "d"
+
+def test_partial_dom_expansion():
+    pass

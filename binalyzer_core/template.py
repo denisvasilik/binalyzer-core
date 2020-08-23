@@ -19,7 +19,10 @@ from .properties import (
     RelativeOffsetValueProperty,
     ReferenceProperty,
 )
-from .context import BackedBindingContext, BindingEngine
+from .context import (
+    BackedBindingContext,
+    BindingEngine,
+)
 
 class Template(NodeMixin, object):
     """This class implements the template mechanism as described in :ref:`template`.
@@ -29,9 +32,12 @@ class Template(NodeMixin, object):
     .. _anytree: https://anytree.readthedocs.io/en/latest/
     """
 
-    def __init__(self, name=None, parent=None, children=None, **kwargs):
-        self._binding_context = BackedBindingContext(self)
+    def __init__(self, name=None, parent=None, children=None, binding_context=None, **kwargs):
+        self._binding_context = binding_context
+        if self._binding_context is None:
+            self._binding_context = BackedBindingContext(self)
         self._binding_engine = BindingEngine(self._binding_context)
+        self._prototype = None
 
         #: The name of the template
         self.name = name
@@ -233,7 +239,7 @@ class Template(NodeMixin, object):
     @binding_context.setter
     def binding_context(self, value):
         self._binding_context = value
-        # self._binding_engine.bind()
+        BindingEngine(self._binding_context)._bind_children(self, self._binding_context)
 
     def _post_attach(self, parent):
         self._add_name_to_parent(parent)

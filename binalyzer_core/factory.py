@@ -31,7 +31,9 @@ class TemplateFactory(object):
         self.property_factory = PropertyFactory()
 
     def clone(self, prototype):
-        return copy.deepcopy(prototype)
+        duplicate = copy.deepcopy(prototype)
+        duplicate.prototype = prototype
+        return duplicate
 
     def clone2(self, prototype):
         duplicate = type(prototype)()
