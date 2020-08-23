@@ -107,9 +107,9 @@ class RelativeOffsetValueProperty(PropertyBase):
 
 class RelativeOffsetReferenceProperty(PropertyBase):
 
-    def __init__(self, template):
-        super(RelativeOffsetValueProperty, self).__init__(
-            template, RelativeOffsetReferenceValueProvider(template))
+    def __init__(self, template, reference_name):
+        super(RelativeOffsetReferenceProperty, self).__init__(
+            template, RelativeOffsetReferenceValueProvider(template, reference_name))
 
 
 class StretchSizeProperty(PropertyBase):

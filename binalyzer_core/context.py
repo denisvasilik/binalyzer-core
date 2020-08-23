@@ -9,6 +9,8 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
+import copy
+
 from .template_provider import (
     TemplateProviderBase,
     TemplateProvider,
@@ -17,6 +19,60 @@ from .data_provider import (
     DataProviderBase,
     ZeroedDataProvider,
 )
+from .factory import TemplateFactory
+
+from anytree import findall
+
+
+class BindingEngine(object):
+
+    def __init__(self, template_factory=None):
+        self.template_factory = template_factory
+        if self.template_factory is None:
+            self.template_factory = TemplateFactory()
+
+    def create_dom(self, tom, binding_context):
+        # (1) Clone TOM
+        dom = self.template_factory.clone(tom)
+        # (2) Bind data to DOM
+        self.bind(dom, binding_context)
+        # (3) Expand DOM
+        self.expand_dom(dom)
+        # (4) Return DOM
+        return dom
+
+    def bind(self, template, binding_context):
+        template.binding_context = binding_context
+        self._bind_children(template, binding_context)
+
+    def _bind_children(self, template, binding_context):
+        if not template.children:
+            return
+        for child in template.children:
+            child.binding_context = binding_context
+            self._bind_children(child, binding_context)
+
+    def expand_dom(self, dom):
+        """ Precondition: DOM slice has not been expanded yet.
+        """
+        expandables = findall(dom, filter_=lambda t: t.count > 1)
+        maxdepth = dom.leaves[0].depth
+
+        for i in range(maxdepth, -1, -1):
+            for expandable in expandables:
+                if expandable.depth == i:
+                    self.expand_template(expandable)
+
+    def expand_template(self, expandable):
+        # add duplicates to expandable's parent
+        for i in range(expandable.count):
+            duplicate = type(expandable)()
+            duplicate.name = expandable.name + "-" + str(i)
+            duplicate.parent = expandable.parent
+            duplicate.binding_context = expandable.binding_context
+            duplicate.children = copy.deepcopy(expandable.children)
+        # remove expandable from DOM
+        expandable.parent = None
 
 
 class BindingContext(object):
@@ -42,17 +98,21 @@ class BindingContext(object):
         self.template_provider = template_provider
         self.template_provider.template.binding_context = self
 
+        self._dom = None
+
     @property
     def template(self):
         """A :class:`~binalyzer.template.Template` that is bound to the
         corresponding binary :attr:`~binalyzer.Binalyzer.data`.
         """
-        return self.template_provider.template
+        return self._dom
 
     @template.setter
     def template(self, value):
         self.template_provider.template = value
         self.template_provider.template.binding_context = self
+        # create DOM using BindingEngine (DOM is used internally only)
+        self._dom = self.binding_engine.create_dom()
 
     @property
     def data(self):

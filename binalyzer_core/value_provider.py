@@ -154,7 +154,7 @@ class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
 
     def __init__(self, template, reference_name):
         self._cached_value = None
-        super(RelativeOffsetCalculator, self).__init__(
+        super(RelativeOffsetReferenceValueProvider, self).__init__(
             template, reference_name)
 
     def get_value(self):

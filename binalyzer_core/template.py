@@ -19,8 +19,7 @@ from .properties import (
     RelativeOffsetValueProperty,
     ReferenceProperty,
 )
-from .context import BackedBindingContext
-
+from .context import BackedBindingContext, BindingEngine
 
 class Template(NodeMixin, object):
     """This class implements the template mechanism as described in :ref:`template`.
@@ -31,11 +30,8 @@ class Template(NodeMixin, object):
     """
 
     def __init__(self, name=None, parent=None, children=None, **kwargs):
-        self._count = ValueProperty(1)
-
-        self.prototypes = []
-
         self._binding_context = BackedBindingContext(self)
+        self._binding_engine = BindingEngine(self._binding_context)
 
         #: The name of the template
         self.name = name
@@ -61,6 +57,10 @@ class Template(NodeMixin, object):
 
         #: :class:`~binalyzer.Boundary` of the template
         self._boundary = ValueProperty()
+
+        self._count = ValueProperty()
+        self._signature = None
+        self._hint = None
 
     @property
     def offset(self):
@@ -159,6 +159,38 @@ class Template(NodeMixin, object):
         self._count = value
 
     @property
+    def hint(self):
+        return self._hint
+
+    @hint.setter
+    def hint(self, value):
+        self._hint = value
+
+    @property
+    def hint_property(self):
+        return self._hint
+
+    @hint_property.setter
+    def hint_property(self, value):
+        self._hint = value
+
+    @property
+    def signature(self):
+        return self._signature
+
+    @signature.setter
+    def signature(self, value):
+        self._signature = value
+
+    @property
+    def signature_property(self):
+        return self._signature
+
+    @signature_property.setter
+    def signature_property(self, value):
+        self._signature = value
+
+    @property
     def absolute_address(self):
         """Provides the absolue address of the template within the binary stream.
         """
@@ -201,47 +233,11 @@ class Template(NodeMixin, object):
     @binding_context.setter
     def binding_context(self, value):
         self._binding_context = value
-        if self._count.value > 1:
-            # create duplications of itself
-            self.children = []
-            for i in range(self.count):
-                child = Template()
-                child.name = self.name + "-" + str(i)
-                child.parent = self
-                # Copy property instances for duplicates
-                if isinstance(self.size_property, AutoSizeValueProperty):
-                    pass
-                else:
-                    child.size_property = copy.copy(self.size_property)
-
-                # force pre-caching the value during tree population
-                for prototype in self.prototypes:
-                    prototype_template = Template()
-                    prototype_template.name = prototype.name
-                    prototype_template.parent = child
-                    prototype_template.size_property = copy.deepcopy(prototype.size_property)
-                    prototype_template.size_property.template = prototype_template
-                    if isinstance(prototype_template.size_property, ReferenceProperty):
-                        prototype_template.size_property.value_provider.template = prototype_template
-                    # Currently not supported, node copy method must be created first.
-                    # prototype_template.children
-                # Cache size and offsets
-                _size = child.size
-                _absolute_address = child.absolute_address
-            self.__dict__[self.name.replace("-", "_")] = self
-        elif self._count.value == 1:
-            self._propagate_binding_context()
-        elif self._count.value == 0:
-            # remote itself from tree
-            self.parent = None
+        # self._binding_engine.bind()
 
     def _post_attach(self, parent):
         self._add_name_to_parent(parent)
         self.binding_context = parent.binding_context
-
-    def _propagate_binding_context(self):
-        for child in self.children:
-            child.binding_context = self.binding_context
 
     def _add_name_to_parent(self, parent):
         if self.name:
