@@ -36,7 +36,6 @@ class Template(NodeMixin, object):
         self._binding_context = binding_context
         if self._binding_context is None:
             self._binding_context = BackedBindingContext(self)
-        self._binding_engine = BindingEngine(self._binding_context)
         self._prototype = None
 
         #: The name of the template
@@ -239,7 +238,7 @@ class Template(NodeMixin, object):
     @binding_context.setter
     def binding_context(self, value):
         self._binding_context = value
-        BindingEngine(self._binding_context)._bind_children(self, self._binding_context)
+        BindingEngine()._bind_children(self, self._binding_context)
 
     def _post_attach(self, parent):
         self._add_name_to_parent(parent)
