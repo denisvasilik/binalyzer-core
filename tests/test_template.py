@@ -140,7 +140,7 @@ def test_read_walkthrough():
         assert field.value == bytes([offset])
 
 
-def test_template_auto_size():
+def test_template_dom_assignment_tom_override():
     binalyzer = Binalyzer()
     template_a = Template('a', parent=binalyzer.template)
     template_a.size = 4
@@ -148,11 +148,21 @@ def test_template_auto_size():
     template_b.size = 4
     assert binalyzer.template.size == 8
 
+
+def test_template_auto_size_value():
+    binalyzer = Binalyzer()
+    template_a = Template('a', parent=binalyzer.template_provider.template)
+    template_a.size = 4
+    template_b = Template('b', parent=binalyzer.template_provider.template)
+    template_b.size = 4
+    assert binalyzer.template.size == 8
+
+
 def test_auto_size_on_value_assignment():
     binalyzer = Binalyzer()
-    template_a = Template('a', parent=binalyzer.template)
+    template_a = Template('a', parent=binalyzer.template_provider.template)
     template_a.value = bytes([0x01] * 4)
-    template_b = Template('b', parent=binalyzer.template)
+    template_b = Template('b', parent=binalyzer.template_provider.template)
     template_b.value = bytes([0x02] * 4)
     assert template_a.size == 4
     assert template_b.size == 4
