@@ -4,35 +4,28 @@
 
     This module implements tests for the context module.
 """
-
-from binalyzer_core.context import BindingEngine, TemplateFactory
-from binalyzer_template_provider import XMLTemplateParser
-
-from binalyzer_core import Binalyzer
+import pytest
 
 from anytree import findall
 
+from binalyzer_core import Binalyzer, Template, TemplateFactory
+
+
 def test_template_factory():
-    template_description = """
-        <template name="root"></template>
-    """
-    prototype = XMLTemplateParser(template_description).parse()
+    prototype = Template(name='root')
     duplicate = TemplateFactory().clone(prototype)
 
     assert prototype.name == duplicate.name
 
+
 def test_dom_expansion():
-    template_description = """
-        <template name="a">
-            <template name="b" count="2">
-                <template name="c" count="4">
-                    <template name="d" count="3">
-                    </template>
-                </template>
-            </template>
-        </template>
-    """
-    tom = XMLTemplateParser(template_description).parse()
+    tom = Template(name='a')
+    b = Template(name='b', parent=tom)
+    b.count = 2
+    c = Template(name='c', parent=b)
+    c.count = 4
+    d = Template(name='d', parent=c)
+    d.count = 3
 
     binalyzer = Binalyzer()
     binalyzer.template = tom
@@ -45,5 +38,6 @@ def test_dom_expansion():
     assert len(list(dom.b.c.children)) == 3
 
 
+@pytest.mark.skip()
 def test_partial_dom_expansion():
     pass
