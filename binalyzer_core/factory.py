@@ -140,8 +140,9 @@ class TemplateFactory(object):
     def __init__(self):
         self.property_factory = PropertyFactory()
 
-    def clone(self, prototype, parent=None):
+    def clone3(self, prototype, parent=None):
         duplicate = type(prototype)()
+        duplicate._prototype = prototype
         duplicate.name = prototype.name
         duplicate.parent = parent
         duplicate.offset_property = self.property_factory.clone(
@@ -169,12 +170,15 @@ class TemplateFactory(object):
             duplicate
         )
 
+        duplicate.signature = prototype.signature
+        duplicate.hint = prototype.hint
+
         for child in prototype.children:
             self.clone(child, duplicate)
 
         return duplicate
 
-    def clone3(self, prototype):
+    def clone(self, prototype):
         duplicate = copy.deepcopy(prototype)
         duplicate.prototype = prototype
         return duplicate
