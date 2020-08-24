@@ -176,8 +176,8 @@ class AutoSizeValueProvider(ValueProvider):
         self.template = template
 
     def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
+        #if not self._cached_value is None:
+        #    return self._cached_value
         self._cached_value = engine.get_size(self.template)
         return self._cached_value
 

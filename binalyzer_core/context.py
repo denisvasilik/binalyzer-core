@@ -23,6 +23,14 @@ from .factory import TemplateFactory
 
 from anytree import findall
 
+from .properties import (
+    PropertyBase,
+    RelativeOffsetValueProperty,
+    RelativeOffsetReferenceProperty,
+    AutoSizeValueProperty,
+    AutoSizeReferenceProperty,
+)
+
 
 class BindingEngine(object):
 
@@ -74,24 +82,42 @@ class BindingEngine(object):
         """ Precondition: DOM slice has not been expanded yet.
         """
         expandables = findall(dom, filter_=lambda t: t.count > 1)
-        maxdepth = dom.leaves[0].depth
 
-        for i in range(maxdepth, -1, -1):
+        for i in range(dom.height, -1, -1):
             for expandable in expandables:
                 if expandable.depth == i:
                     self.expand_template(expandable)
 
     def expand_template(self, expandable):
+        # remove expandable from DOM
+        parent = expandable.parent
+        expandable.parent = None
         # add duplicates to expandable's parent
         for i in range(expandable.count):
             duplicate = type(expandable)()
             duplicate.name = expandable.name + "-" + str(i)
-            duplicate.parent = expandable.parent
+            duplicate.parent = parent
             duplicate.binding_context = expandable.binding_context
             duplicate.children = copy.deepcopy(expandable.children)
-            duplicate.size_property = copy.copy(expandable.size_property)
-        # remove expandable from DOM
-        expandable.parent = None
+            if isinstance(expandable.offset_property, RelativeOffsetValueProperty):
+                duplicate.offset_property = RelativeOffsetValueProperty(
+                    duplicate, ignore_boundary=True
+                )
+            elif isinstance(expandable.offset_property, RelativeOffsetReferenceProperty):
+                duplicate.offset_property = RelativeOffsetReferenceProperty(
+                    duplicate, expandable.offset_property.reference_name
+                )
+
+            if isinstance(expandable.size_property, AutoSizeValueProperty):
+                duplicate.size_property = AutoSizeValueProperty(
+                    duplicate
+                )
+            elif isinstance(expandable.size_property, PropertyBase):
+                duplicate.size_property = PropertyBase(
+                    template=duplicate,
+                    value_provider=expandable.size_property.value_provider,
+                    value_converter=expandable.size_property.value_converter,
+                )
 
 
 class BindingContext(object):
