@@ -36,9 +36,13 @@ class BindingEngine(object):
         dom = self.template_factory.clone(tom)
         # (2) Bind data to DOM
         self.bind(dom, binding_context)
-        # (3) Expand DOM
+        # (3) Validate DOM
+        self.validate(dom)
+        # (4) Reduce DOM
+        self.reduce(dom)
+        # (5) Expand DOM
         self.expand_dom(dom)
-        # (4) Return DOM
+        # (6) Return DOM
         return dom
 
     def bind(self, template, binding_context):
@@ -51,6 +55,20 @@ class BindingEngine(object):
         for child in template.children:
             child.binding_context = binding_context
             self._bind_children(child, binding_context)
+
+    def reduce(self, dom):
+        for t in findall(dom, filter_=lambda t: t.count == 0):
+            t.parent = None
+
+    def validate(self, dom):
+        for t in findall(dom, filter_=lambda t: t.signature):
+            size = len(t.signature)
+            t.binding_context.data_provider.data.seek(t.absolute_address)
+            value = t.binding_context.data_provider.data.read(size)
+            if t.hint is None and t.signature != value:
+                raise RuntimeError("Signature validation failed.")
+            elif t.hint and t.signature != value:
+                t.parent = None
 
     def expand_dom(self, dom):
         """ Precondition: DOM slice has not been expanded yet.
