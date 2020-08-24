@@ -41,8 +41,8 @@ def test_binalyzer_get_template_provider():
     data = data_provider.data
     binalyzer = Binalyzer(template, data)
     assert binalyzer.template_provider != template_provider
-    assert binalyzer.template_provider.template == template
-    assert binalyzer.template == template
+    assert binalyzer.template_provider.template.name == template.name
+    assert binalyzer.template.name == template.name
 
 
 def test_binalyzer_get_data_provider():
@@ -63,10 +63,10 @@ def test_binalyzer_get_data():
 
 
 def test_binalyzer_get_template():
-    template_provider = PlainTemplateProvider()
-    data_provider = ZeroedDataProvider()
-    binalyzer = Binalyzer(template_provider, data_provider)
-    binalyzer.template
+    binalyzer = Binalyzer()
+    binalyzer.template_provider = PlainTemplateProvider()
+    binalyzer.data_provider = ZeroedDataProvider()
+    assert binalyzer.template
 
 
 def test_binalyzer_set_template_provider():
@@ -77,14 +77,14 @@ def test_binalyzer_set_template_provider():
 
 
 def test_binalyzer_set_template():
-    template_mock1 = Template()
-    template_mock2 = Template()
+    template_mock1 = Template(name='a')
+    template_mock2 = Template(name='b')
     template_provider = TemplateProvider(template_mock1)
     binalyzer = Binalyzer()
     binalyzer.template_provider = template_provider
     binalyzer.template = template_mock2
-    assert binalyzer.template == template_mock2
-    assert binalyzer.template != template_mock1
+    assert binalyzer.template.name == template_mock2.name
+    assert binalyzer.template.name != template_mock1.name
 
 
 def test_binalyzer_set_data_provider():

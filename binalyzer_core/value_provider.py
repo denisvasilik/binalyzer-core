@@ -154,7 +154,7 @@ class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
 
     def __init__(self, template, reference_name):
         self._cached_value = None
-        super(RelativeOffsetCalculator, self).__init__(
+        super(RelativeOffsetReferenceValueProvider, self).__init__(
             template, reference_name)
 
     def get_value(self):
@@ -176,8 +176,8 @@ class AutoSizeValueProvider(ValueProvider):
         self.template = template
 
     def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
+        #if not self._cached_value is None:
+        #    return self._cached_value
         self._cached_value = engine.get_size(self.template)
         return self._cached_value
 
