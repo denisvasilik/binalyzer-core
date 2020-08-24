@@ -74,3 +74,6 @@ from .converter import (
     IntegerValueConverter,
     LEB128UnsignedValueConverter,
 )
+from .factory import (
+    TemplateFactory,
+)

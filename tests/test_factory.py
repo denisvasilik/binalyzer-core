@@ -6,12 +6,10 @@
 """
 import pytest
 
-from binalyzer_core.context import BindingEngine, TemplateFactory
-from binalyzer_template_provider import XMLTemplateParser
-
-from binalyzer_core.factory import TemplateFactory
-
-from binalyzer_core import Binalyzer, Template
+from binalyzer_core import (
+    Template,
+    TemplateFactory,
+)
 
 from anytree import findall
 
@@ -22,15 +20,6 @@ def factory():
 
 
 def test_template_factory(factory):
-    binalyzer = Binalyzer()
-    template_a = Template('a', parent=binalyzer.template_provider.template)
-    template_a.size = 4
-    template_b = Template('b', parent=binalyzer.template_provider.template)
-    template_b.size = 4
-    assert binalyzer.template.size == 8
-
-
-def test_template_factory2(factory):
     template = Template()
     template.name = 'a'
     template.size = 0x1
@@ -48,20 +37,3 @@ def test_template_factory2(factory):
     assert duplicate.padding_before == template.padding_before
     assert duplicate.padding_after == template.padding_after
     assert duplicate.name == template.name
-
-
-# def test_template_factory():
-#    template_description = """
-#         <template name="a">
-#             <template name="b" count="2">
-#                 <template name="c" count="4">
-#                     <template name="d" count="3">
-#                     </template>
-#                 </template>
-#             </template>
-#         </template>
-#     """
-#     prototype = XMLTemplateParser(template_description).parse()
-#     duplicate = TemplateFactory().clone(prototype)
-
-#     assert prototype.name == duplicate.name
