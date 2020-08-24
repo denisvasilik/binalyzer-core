@@ -63,7 +63,7 @@ class Template(NodeMixin, object):
         #: :class:`~binalyzer.Boundary` of the template
         self._boundary = ValueProperty()
 
-        self._count = ValueProperty()
+        self._count = ValueProperty(1)
         self._signature = None
         self._hint = None
 
