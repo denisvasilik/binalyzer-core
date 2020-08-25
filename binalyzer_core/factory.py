@@ -8,8 +8,6 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-import copy
-
 from .properties import (
     PropertyBase,
     ValueProperty,
@@ -21,6 +19,16 @@ from .properties import (
     AutoSizeValueProperty,
     AutoSizeReferenceProperty,
 )
+from .value_provider import (
+    RelativeOffsetValueProvider,
+    LEB128UnsignedBindingValueProvider,
+    LEB128SizeBindingValueProvider,
+)
+from .converter import (
+    IdentityValueConverter,
+    LEB128UnsignedValueConverter,
+)
+
 
 class PropertyFactory(object):
 
@@ -40,22 +48,26 @@ class PropertyFactory(object):
     def clone(self, prototype, template):
         factory = [f for f in self.property_factories
                    if f.is_clonable(prototype)][0]
-        duplicate = factory.clone(prototype)
+        duplicate = factory.clone(prototype, template)
         return duplicate
 
 
 class PropertyBaseFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
-        #duplicate.template = template
-        # duplicate.value_provider = type(prototype.value_provider)(
-
-        # )
-        # duplicate.value_converter = type(prototype.value_converter)(
-
-        # )
-        # return duplicate
+    def clone(self, prototype, template):
+        if isinstance(prototype.value_provider, LEB128UnsignedBindingValueProvider):
+            return PropertyBase(
+                template=template,
+                value_provider=LEB128UnsignedBindingValueProvider(template),
+                value_converter=LEB128UnsignedValueConverter(),
+            )
+        if isinstance(prototype.value_provider, LEB128SizeBindingValueProvider):
+            return PropertyBase(
+                template=template,
+                value_provider=LEB128SizeBindingValueProvider(template),
+                value_converter=IdentityValueConverter(),
+            )
+        raise RuntimeError()
 
     def is_clonable(self, obj):
         return isinstance(obj, PropertyBase)
@@ -63,8 +75,12 @@ class PropertyBaseFactory(object):
 
 class ValuePropertyFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
+    def clone(self, prototype, template):
+        return ValueProperty(
+            value=prototype.value_provider.get_value(),
+            template=template,
+            value_converter=prototype.value_converter,
+        )
 
     def is_clonable(self, obj):
         return isinstance(obj, ValueProperty)
@@ -72,8 +88,8 @@ class ValuePropertyFactory(object):
 
 class FunctionPropertyFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
+    def clone(self, prototype, template):
+        return FunctionProperty(template)
 
     def is_clonable(self, obj):
         return isinstance(obj, FunctionProperty)
@@ -81,10 +97,12 @@ class FunctionPropertyFactory(object):
 
 class ReferencePropertyFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
-        # if isinstance(duplicate, ReferenceProperty):
-        #    duplicate.value_provider.template = template
+    def clone(self, prototype, template):
+        return ReferenceProperty(
+            template,
+            prototype.value_provider.reference_name,
+            prototype.value_converter,
+        )
 
     def is_clonable(self, obj):
         return isinstance(obj, ReferenceProperty)
@@ -92,8 +110,14 @@ class ReferencePropertyFactory(object):
 
 class RelativeOffsetValuePropertyFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
+    def clone(self, prototype, template):
+        offset_property = RelativeOffsetValueProperty(
+            template,
+            prototype.value_provider.ignore_boundary,
+        )
+        if prototype.value_provider.ignore_boundary:
+            offset_property.value = prototype.value
+        return offset_property
 
     def is_clonable(self, obj):
         return isinstance(obj, RelativeOffsetValueProperty)
@@ -101,8 +125,11 @@ class RelativeOffsetValuePropertyFactory(object):
 
 class RelativeOffsetReferencePropertyFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
+    def clone(self, prototype, template):
+        return RelativeOffsetReferenceProperty(
+            template,
+            prototype.value_provider.reference_name,
+        )
 
     def is_clonable(self, obj):
         return isinstance(obj, RelativeOffsetReferenceProperty)
@@ -110,8 +137,8 @@ class RelativeOffsetReferencePropertyFactory(object):
 
 class StretchSizePropertyFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
+    def clone(self, prototype, template):
+        return StretchSizeProperty(template)
 
     def is_clonable(self, obj):
         return isinstance(obj, StretchSizeProperty)
@@ -119,8 +146,8 @@ class StretchSizePropertyFactory(object):
 
 class AutoSizeValuePropertyFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
+    def clone(self, prototype, template):
+        return AutoSizeValueProperty(template)
 
     def is_clonable(self, obj):
         return isinstance(obj, AutoSizeValueProperty)
@@ -128,8 +155,8 @@ class AutoSizeValuePropertyFactory(object):
 
 class AutoSizeReferencePropertyFactory(object):
 
-    def clone(self, prototype):
-        return copy.copy(prototype)
+    def clone(self, prototype, template):
+        return AutoSizeReferenceProperty(template)
 
     def is_clonable(self, obj):
         return isinstance(obj, AutoSizeReferenceProperty)
@@ -140,11 +167,12 @@ class TemplateFactory(object):
     def __init__(self):
         self.property_factory = PropertyFactory()
 
-    def clone3(self, prototype, parent=None):
+    def clone(self, prototype, parent=None):
         duplicate = type(prototype)()
         duplicate._prototype = prototype
         duplicate.name = prototype.name
         duplicate.parent = parent
+
         duplicate.offset_property = self.property_factory.clone(
             prototype.offset_property,
             duplicate
@@ -176,9 +204,4 @@ class TemplateFactory(object):
         for child in prototype.children:
             self.clone(child, duplicate)
 
-        return duplicate
-
-    def clone(self, prototype):
-        duplicate = copy.deepcopy(prototype)
-        duplicate.prototype = prototype
         return duplicate

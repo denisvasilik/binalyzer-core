@@ -94,6 +94,7 @@ class BindingEngine(object):
         expandable.parent = None
         # add duplicates to expandable's parent
         for i in range(expandable.count):
+            # self.template_factory.clone(expandable, copy_properties=True)
             duplicate = type(expandable)()
             duplicate.name = expandable.name + "-" + str(i)
             duplicate.parent = parent
