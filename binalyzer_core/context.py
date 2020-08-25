@@ -95,30 +95,6 @@ class BindingEngine(object):
         # add duplicates to expandable's parent
         for i in range(expandable.count):
             self.template_factory.clone(expandable, id=i, parent=parent)
-            # duplicate = type(expandable)()
-            # duplicate.name = expandable.name + "-" + str(i)
-            # duplicate.parent = parent
-            # duplicate.binding_context = expandable.binding_context
-            # duplicate.children = copy.deepcopy(expandable.children)
-            # if isinstance(expandable.offset_property, RelativeOffsetValueProperty):
-            #     duplicate.offset_property = RelativeOffsetValueProperty(
-            #         duplicate, ignore_boundary=True
-            #     )
-            # elif isinstance(expandable.offset_property, RelativeOffsetReferenceProperty):
-            #     duplicate.offset_property = RelativeOffsetReferenceProperty(
-            #         duplicate, expandable.offset_property.reference_name
-            #     )
-
-            # if isinstance(expandable.size_property, AutoSizeValueProperty):
-            #     duplicate.size_property = AutoSizeValueProperty(
-            #         duplicate
-            #     )
-            # elif isinstance(expandable.size_property, PropertyBase):
-            #     duplicate.size_property = PropertyBase(
-            #         template=duplicate,
-            #         value_provider=expandable.size_property.value_provider,
-            #         value_converter=expandable.size_property.value_converter,
-            #     )
 
 
 class BindingContext(object):
