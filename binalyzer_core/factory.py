@@ -167,10 +167,13 @@ class TemplateFactory(object):
     def __init__(self):
         self.property_factory = PropertyFactory()
 
-    def clone(self, prototype, parent=None):
+    def clone(self, prototype, id=None, parent=None):
         duplicate = type(prototype)()
         duplicate._prototype = prototype
-        duplicate.name = prototype.name
+        if id:
+            duplicate.name = prototype.name + "-" + str(id)
+        else:
+            duplicate.name = prototype.name
         duplicate.parent = parent
 
         duplicate.offset_property = self.property_factory.clone(
@@ -202,6 +205,6 @@ class TemplateFactory(object):
         duplicate.hint = prototype.hint
 
         for child in prototype.children:
-            self.clone(child, duplicate)
+            self.clone(child, parent=duplicate)
 
         return duplicate
