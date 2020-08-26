@@ -170,10 +170,11 @@ class TemplateFactory(object):
     def clone(self, prototype, id=None, parent=None):
         duplicate = type(prototype)()
         duplicate._prototype = prototype
-        if id:
-            duplicate.name = prototype.name + "-" + str(id)
-        else:
+        if id is None:
             duplicate.name = prototype.name
+        else:
+            duplicate.name = prototype.name + "-" + str(id)
+
         duplicate.parent = parent
 
         duplicate.offset_property = self.property_factory.clone(
