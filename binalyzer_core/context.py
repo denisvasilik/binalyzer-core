@@ -25,6 +25,7 @@ from anytree import findall
 
 from .properties import (
     PropertyBase,
+    ValueProperty,
     RelativeOffsetValueProperty,
     RelativeOffsetReferenceProperty,
     AutoSizeValueProperty,
@@ -50,6 +51,8 @@ class BindingEngine(object):
         self.reduce(dom)
         # (5) Expand DOM
         self.expand_dom(dom)
+        # (4) Reduce duplicates DOM
+        self.reduce(dom)
         # (6) Return DOM
         return dom
 
@@ -92,9 +95,17 @@ class BindingEngine(object):
         # remove expandable from DOM
         parent = expandable.parent
         expandable.parent = None
+
+        # Set count to 1 for duplicates
+        count = expandable.count
+        expandable.count_property = ValueProperty(1)
+
         # add duplicates to expandable's parent
-        for i in range(expandable.count):
+        for i in range(count):
             self.template_factory.clone(expandable, id=i, parent=parent)
+
+
+
 
 
 class BindingContext(object):
