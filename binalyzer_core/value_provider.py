@@ -47,57 +47,6 @@ class FunctionValueProvider(ValueProviderBase):
         raise RuntimeError('Not supported')
 
 
-class LEB128UnsignedBindingValueProvider(ValueProviderBase):
-
-    def __init__(self, template=None):
-        self.template = template
-        self._cached_value = None
-
-    def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
-        data = self.template.binding_context.data_provider.data
-        absolute_address = self.template.absolute_address
-        data.seek(absolute_address)
-        size = 1
-        byte_value = int.from_bytes(data.read(1), 'little')
-        while ((byte_value & 0x80) == 0x80):
-            size += 1
-            byte_value = int.from_bytes(data.read(1), 'little')
-        data.seek(absolute_address)
-        leb128_value = list(data.read(size))
-        leb128_value.reverse()
-        self._cached_value = bytes(leb128_value)
-        return self._cached_value
-
-    def set_value(self, value):
-        raise RuntimeError('Not implemented, yet.')
-
-
-class LEB128SizeBindingValueProvider(ValueProviderBase):
-
-    def __init__(self, template=None):
-        self.template = template
-        self._cached_value = None
-
-    def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
-        data = self.template.binding_context.data_provider.data
-        absolute_address = self.template.absolute_address
-        data.seek(absolute_address)
-        size = 1
-        byte_value = int.from_bytes(data.read(1), 'little')
-        while ((byte_value & 0x80) == 0x80):
-            size += 1
-            byte_value = int.from_bytes(data.read(1), 'little')
-        self._cached_value = size
-        return self._cached_value
-
-    def set_value(self, value):
-        raise RuntimeError('Not implemented, yet.')
-
-
 def find_by_scope(template, reference_name):
     while template.parent:
         result = findall_by_attr(template.parent, reference_name)
@@ -142,7 +91,7 @@ class RelativeOffsetValueProvider(ValueProvider):
         if not self._cached_value is None:
             return self._cached_value
         self._cached_value = (engine.get_offset(self.template,
-                                                         self.ignore_boundary) + self._value)
+                                                self.ignore_boundary) + self._value)
         return self._cached_value
 
     def set_value(self, value):

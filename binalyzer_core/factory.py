@@ -19,15 +19,8 @@ from .properties import (
     AutoSizeValueProperty,
     AutoSizeReferenceProperty,
 )
-from .value_provider import (
-    RelativeOffsetValueProvider,
-    LEB128UnsignedBindingValueProvider,
-    LEB128SizeBindingValueProvider,
-)
-from .converter import (
-    IdentityValueConverter,
-    LEB128UnsignedValueConverter,
-)
+from .value_provider import RelativeOffsetValueProvider
+from .converter import IdentityValueConverter
 
 
 class PropertyFactory(object):
@@ -55,19 +48,11 @@ class PropertyFactory(object):
 class PropertyBaseFactory(object):
 
     def clone(self, prototype, template):
-        if isinstance(prototype.value_provider, LEB128UnsignedBindingValueProvider):
-            return PropertyBase(
-                template=template,
-                value_provider=LEB128UnsignedBindingValueProvider(template),
-                value_converter=LEB128UnsignedValueConverter(),
-            )
-        if isinstance(prototype.value_provider, LEB128SizeBindingValueProvider):
-            return PropertyBase(
-                template=template,
-                value_provider=LEB128SizeBindingValueProvider(template),
-                value_converter=IdentityValueConverter(),
-            )
-        raise RuntimeError()
+        return PropertyBase(
+            template=template,
+            value_provider=type(prototype.value_provider)(template),
+            value_converter=type(prototype.value_converter)(),
+        )
 
     def is_clonable(self, obj):
         return isinstance(obj, PropertyBase)

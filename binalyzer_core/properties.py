@@ -19,12 +19,10 @@ from .value_provider import (
     RelativeOffsetValueProvider,
     RelativeOffsetReferenceValueProvider,
     StretchSizeValueProvider,
-    LEB128UnsignedBindingValueProvider,
 )
 from .converter import (
     IdentityValueConverter,
     IntegerValueConverter,
-    LEB128UnsignedValueConverter,
 )
 
 
@@ -71,16 +69,6 @@ class FunctionProperty(PropertyBase):
     def __init__(self, template):
         super(FunctionProperty, self).__init__(
             template, FunctionValueProvider())
-
-
-class LEB128UnsignedBindingProperty(PropertyBase):
-
-    def __init__(self, template):
-        super(LEB128UnsignedBindingProperty, self).__init(
-            template=template,
-            value_provider=LEB128UnsignedBindingValueProvider(template),
-            value_converter=LEB128UnsignedValueConverter(),
-        )
 
 
 class ReferenceProperty(PropertyBase):

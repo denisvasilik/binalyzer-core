@@ -8,7 +8,6 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-import leb128
 
 
 class IdentityValueConverter(object):
@@ -30,12 +29,3 @@ class IntegerValueConverter(object):
 
     def convert_back(self, value, template):
         return value.to_bytes(template.size, self.byte_order)
-
-
-class LEB128UnsignedValueConverter(object):
-
-    def convert(self, value, template):
-        return leb128.u.decode(value)
-
-    def convert_back(self, value, template):
-        return leb128.u.encode(value)

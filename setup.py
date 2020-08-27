@@ -33,7 +33,6 @@ setuptools.setup(
     setup_requires=[],
     install_requires=[
         "anytree>=2.8.0",
-        "leb128>=1.0.2",
     ],
     entry_points={},
 )
