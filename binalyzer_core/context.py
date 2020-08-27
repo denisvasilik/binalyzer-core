@@ -31,6 +31,10 @@ from .properties import (
     AutoSizeValueProperty,
     AutoSizeReferenceProperty,
 )
+from .utils import (
+    leftsiblings,
+    rightsiblings,
+)
 
 
 class BindingEngine(object):
@@ -45,15 +49,9 @@ class BindingEngine(object):
         dom = self.template_factory.clone(tom)
         # (2) Bind data to DOM
         self.bind(dom, binding_context)
-        # (3) Validate DOM
-        self.validate(dom)
-        # (4) Reduce DOM
-        self.reduce(dom)
-        # (5) Expand DOM
+        # (3) Process DOM
         self.expand_dom(dom)
-        # (4) Reduce duplicates DOM
-        self.reduce(dom)
-        # (6) Return DOM
+        # (4) Return DOM
         return dom
 
     def bind(self, template, binding_context):
@@ -81,31 +79,70 @@ class BindingEngine(object):
             elif t.hint and t.signature != value:
                 t.parent = None
 
+    def validate_template(self, template):
+        size = len(template.signature)
+        template.binding_context.data_provider.data.seek(
+            template.absolute_address)
+        value = template.binding_context.data_provider.data.read(size)
+        if template.hint is None and template.signature != value:
+            raise RuntimeError("Signature validation failed.")
+        elif template.hint and template.signature != value:
+            template.parent = None
+        template.signature = None  # Tree could be annotated instead
+
+    def find_next(self, template, condition):
+        if condition(template):
+            return template
+        for child in template.children:
+            template = self.find_next(child, condition)
+            if template:
+                return template
+        return None
+
     def expand_dom(self, dom):
         """ Precondition: DOM slice has not been expanded yet.
         """
-        expandables = findall(dom, filter_=lambda t: t.count > 1)
+        while True:
+            template = self.find_next(dom, lambda t:
+                                      (t.count > 1 or t.count == 0 or t.signature)
+                                      )
+            if template is None:
+                break
+            elif template.count > 1:
+                self.expand_template(template)
+            elif template.count == 0:
+                self.reduce_template(template)
+            elif template.signature:
+                self.validate_template(template)
+            else:
+                raise RuntimeError()
 
-        for i in range(dom.height, -1, -1):
-            for expandable in expandables:
-                if expandable.depth == i:
-                    self.expand_template(expandable)
+    def reduce_template(self, template):
+        template.parent = None
 
     def expand_template(self, expandable):
-        # remove expandable from DOM
-        parent = expandable.parent
-        expandable.parent = None
-
         # Set count to 1 for duplicates
         count = expandable.count
         expandable.count_property = ValueProperty(1)
 
+        left = leftsiblings(expandable)
+        right = rightsiblings(expandable)
+
+        # remove expandable from DOM
+        parent = expandable.parent
+        expandable.parent = None
+
         # add duplicates to expandable's parent
+        duplicates = []
         for i in range(count):
-            self.template_factory.clone(expandable, id=i, parent=parent)
+            duplicates.append(self.template_factory.clone(expandable, id=i))
 
+        parent_children = []
+        parent_children.extend(left)
+        parent_children.extend(duplicates)
+        parent_children.extend(right)
 
-
+        parent.children = parent_children
 
 
 class BindingContext(object):

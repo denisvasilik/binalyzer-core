@@ -34,8 +34,8 @@ def test_dom_expansion():
     assert dom.name == tom.name
     assert id(dom) != id(tom)
     assert len(list(dom.children)) == 2
-    assert len(list(dom.b.children)) == 4
-    assert len(list(dom.b.c.children)) == 3
+    assert len(list(dom.children[0].children)) == 4
+    assert len(list(dom.children[0].children[0].children)) == 3
 
 
 @pytest.mark.skip()
