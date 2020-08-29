@@ -25,6 +25,7 @@ def leftsiblings(node: NodeMixin):
     while sibling:
         siblings.append(sibling)
         sibling = leftsibling(sibling)
+    siblings.reverse()
     return siblings
 
 
