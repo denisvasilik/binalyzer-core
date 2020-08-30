@@ -25,6 +25,9 @@ from .extension import (
 from .template import (
     Template,
 )
+from .template_engine import (
+    TemplateEngine,
+)
 from .properties import (
     PropertyBase,
     ValueProperty,

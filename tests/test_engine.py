@@ -6,10 +6,15 @@
 """
 import pytest
 
-from binalyzer_core import Template, engine
+from binalyzer_core import Template, TemplateEngine
 
 
-def test_get_offset_of_template_without_boundary():
+@pytest.fixture
+def engine():
+    return TemplateEngine()
+
+
+def test_get_offset_of_template_without_boundary(engine):
     template_a = Template(name='a')
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
@@ -20,7 +25,7 @@ def test_get_offset_of_template_without_boundary():
     assert engine.get_offset(template_d) == 3
 
 
-def test_get_offset_when_template_is_not_on_boundary():
+def test_get_offset_when_template_is_not_on_boundary(engine):
     template_a = Template(name='a')
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
@@ -32,7 +37,7 @@ def test_get_offset_when_template_is_not_on_boundary():
     assert engine.get_offset(template_d) == 5
 
 
-def test_get_offset_when_template_is_on_boundary():
+def test_get_offset_when_template_is_on_boundary(engine):
     template_a = Template(name='a')
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
@@ -44,18 +49,18 @@ def test_get_offset_when_template_is_on_boundary():
     assert engine.get_offset(template_d) == 3
 
 
-def test_get_size_without_children_and_boundary():
+def test_get_size_without_children_and_boundary(engine):
     template = Template()
     assert engine.get_size(template) == 0
 
 
-def test_get_size_without_children_but_with_boundary():
+def test_get_size_without_children_but_with_boundary(engine):
     template = Template()
     template.boundary = 0x100
     assert engine.get_size(template) == 0x100
 
 
-def test_get_size_with_children_and_without_boundary():
+def test_get_size_with_children_and_without_boundary(engine):
     template_a = Template(name='a')
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
@@ -66,7 +71,7 @@ def test_get_size_with_children_and_without_boundary():
     assert engine.get_size(template_a) == 7
 
 
-def test_get_size_with_children_and_boundary():
+def test_get_size_with_children_and_boundary(engine):
     template_a = Template(name='a')
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
@@ -78,7 +83,7 @@ def test_get_size_with_children_and_boundary():
     assert engine.get_size(template_a) == 0x10
 
 
-def test_get_size_of_children():
+def test_get_size_of_children(engine):
     template_a = Template(name='a')
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
@@ -89,35 +94,42 @@ def test_get_size_of_children():
     assert engine.get_size(template_a) == 7
 
 
-def test_get_size_of_children_without_children():
+def test_get_size_of_children_without_children(engine):
     template = Template()
     assert engine.get_size(template) == 0
 
 
-def test_get_size_of_child_using_offset_attribute():
+@pytest.mark.skip()
+def test_get_size_of_child_using_offset_attribute(engine):
     pass
 
 
-def test_get_size_of_child_using_size_attribute():
+@pytest.mark.skip()
+def test_get_size_of_child_using_size_attribute(engine):
     pass
 
 
-def test_get_size_of_child_using_padding_after_attribute():
+@pytest.mark.skip()
+def test_get_size_of_child_using_padding_after_attribute(engine):
     pass
 
 
-def test_get_size_of_child_using_parent_boundary_attribute():
+@pytest.mark.skip()
+def test_get_size_of_child_using_parent_boundary_attribute(engine):
     pass
 
 
-def test_get_max_size():
+@pytest.mark.skip()
+def test_get_max_size(engine):
     pass
 
-def test_boundary_offset_relative_to_parent():
+
+@pytest.mark.skip()
+def test_boundary_offset_relative_to_parent(engine):
     pass
 
 
-def test_relative_offset_end_of_previous_sibling():
+def test_relative_offset_end_of_previous_sibling(engine):
     template_a = Template(name='a')
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
@@ -128,13 +140,13 @@ def test_relative_offset_end_of_previous_sibling():
     assert engine._get_offset_at_end_of_predecessor(template_d) == 3
 
 
-def test_get_multiple_of_boundary_when_boundary_zero():
+def test_get_multiple_of_boundary_when_boundary_zero(engine):
     assert engine._get_multiple_of_boundary(123, 0) == 123
 
 
-def test_get_multiple_of_boundary_when_value_on_boundary():
+def test_get_multiple_of_boundary_when_value_on_boundary(engine):
     assert engine._get_multiple_of_boundary(0x400, 0x100) == 0x400
 
 
-def test_get_multiple_of_boundary_when_value_off_boundary():
+def test_get_multiple_of_boundary_when_value_off_boundary(engine):
     assert engine._get_multiple_of_boundary(0x470, 0x100) == 0x500

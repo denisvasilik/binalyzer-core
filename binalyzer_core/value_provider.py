@@ -8,10 +8,10 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-from . import engine
-
 from anytree import findall_by_attr
 from anytree.util import leftsibling, rightsibling
+
+from .template_engine import TemplateEngine
 
 
 class ValueProviderBase(object):
@@ -84,14 +84,16 @@ class RelativeOffsetValueProvider(ValueProvider):
     def __init__(self, template, ignore_boundary=False):
         self.template = template
         self.ignore_boundary = ignore_boundary
+        self._engine = TemplateEngine()
         self._cached_value = None
         super(RelativeOffsetValueProvider, self).__init__()
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        self._cached_value = (engine.get_offset(self.template,
-                                                self.ignore_boundary) + self._value)
+        self._cached_value = (self._engine.get_offset(self.template,
+                                                      self.ignore_boundary) +
+                              self._value)
         return self._cached_value
 
     def set_value(self, value):
@@ -102,6 +104,7 @@ class RelativeOffsetValueProvider(ValueProvider):
 class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
 
     def __init__(self, template, reference_name):
+        self._engine = TemplateEngine()
         self._cached_value = None
         super(RelativeOffsetReferenceValueProvider, self).__init__(
             template, reference_name)
@@ -109,7 +112,7 @@ class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        self._cached_value = (engine.get_offset(self.template) +
+        self._cached_value = (self._engine.get_offset(self.template) +
                               find_by_scope(self.template, self.reference_name).value)
         return self._cached_value
 
@@ -121,13 +124,14 @@ class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
 class AutoSizeValueProvider(ValueProvider):
 
     def __init__(self, template):
-        self._cached_value = None
         self.template = template
+        self._engine = TemplateEngine()
+        self._cached_value = None
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        self._cached_value = engine.get_size(self.template)
+        self._cached_value = self._engine.get_size(self.template)
         return self._cached_value
 
     def set_value(self, value):
@@ -137,13 +141,14 @@ class AutoSizeValueProvider(ValueProvider):
 class StretchSizeValueProvider(ValueProvider):
 
     def __init__(self, template):
-        self._cached_value = None
         self.template = template
+        self._engine = TemplateEngine()
+        self._cached_value = None
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        return engine.get_max_size(self.template)
+        return self._engine.get_max_size(self.template)
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
