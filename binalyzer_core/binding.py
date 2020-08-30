@@ -43,7 +43,6 @@ class BindingEngine(object):
 
     def _rebind(self, template, binding_context):
         template.binding_context = binding_context
-        self._bind_children(template, binding_context)
         return template
 
     def _modify(self, template, binding_context):
@@ -73,13 +72,6 @@ class BindingEngine(object):
                 return template
         return None
 
-    def _bind_children(self, template, binding_context):
-        if not template.children:
-            return
-        for child in template.children:
-            child.binding_context = binding_context
-            self._bind_children(child, binding_context)
-
     def _validate(self, template):
         size = len(template.signature)
         template.binding_context.data_provider.data.seek(
@@ -95,18 +87,14 @@ class BindingEngine(object):
         template.parent = None
 
     def _expand(self, expandable):
-        # Set count to 1 for duplicates
         count = expandable.count
-        expandable.count_property = ValueProperty(1)
-
+        parent = expandable.parent
         left = leftsiblings(expandable)
         right = rightsiblings(expandable)
-
-        # remove expandable from DOM
-        parent = expandable.parent
+        
         expandable.parent = None
+        expandable.count_property = ValueProperty(1)
 
-        # add duplicates to expandable's parent
         duplicates = []
         for i in range(count):
             duplicates.append(self.template_factory.clone(expandable, id=i))
