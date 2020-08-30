@@ -27,50 +27,38 @@ from .utils import (
 
 class BindingEngine(object):
 
-    def __init__(self, template_factory=None):
-        self.template_factory = template_factory
-        if self.template_factory is None:
-            self.template_factory = TemplateFactory()
+    def __init__(self):
+        self._template_factory = TemplateFactory()
+        self._template_visitor = {
+            lambda t: t.count > 1: self._expand,
+            lambda t: t.count == 0: self._reduce,
+            lambda t: t.signature: self._validate,
+        }
 
     def bind(self, template, binding_context):
-        template = self._clone(template, binding_context)
-        template = self._rebind(template, binding_context)
-        template = self._modify(template, binding_context)
-        return template
-
-    def _clone(self, template, binding_context):
-        return self.template_factory.clone(template)
-
-    def _rebind(self, template, binding_context):
+        template = self._template_factory.clone(template)
         template.binding_context = binding_context
+        return self._process(template, binding_context)
+
+    def _process(self, template, binding_context):
+        processing = True
+        while processing:
+            processing = self._find_next_and_apply(
+                template,
+                self._template_visitor
+            )
         return template
 
-    def _modify(self, template, binding_context):
-        while True:
-            template_branch = self._find(template, lambda t:
-                                                  (t.count > 1 or t.count ==
-                                                   0 or t.signature)
-                                                  )
-            if template_branch is None:
-                break
-            elif template_branch.count > 1:
-                self._expand(template_branch)
-            elif template_branch.count == 0:
-                self._reduce(template_branch)
-            elif template_branch.signature:
-                self._validate(template_branch)
-            else:
-                raise RuntimeError()
-        return template
-
-    def _find(self, template, condition):
-        if condition(template):
-            return template
+    def _find_next_and_apply(self, template, visitors):
+        for predicate, fn in visitors.items():
+            if predicate(template):
+                fn(template)
+                return True
         for child in template.children:
-            template = self._find(child, condition)
-            if template:
-                return template
-        return None
+            found = self._find_next_and_apply(child, visitors)
+            if found:
+                return True
+        return False
 
     def _validate(self, template):
         size = len(template.signature)
@@ -81,7 +69,7 @@ class BindingEngine(object):
             raise RuntimeError("Signature validation failed.")
         elif template.hint and template.signature != value:
             template.parent = None
-        template.signature = None  # Tree could be annotated instead
+        template.signature = None
 
     def _reduce(self, template):
         template.parent = None
@@ -91,13 +79,13 @@ class BindingEngine(object):
         parent = expandable.parent
         left = leftsiblings(expandable)
         right = rightsiblings(expandable)
-        
+
         expandable.parent = None
         expandable.count_property = ValueProperty(1)
 
         duplicates = []
         for i in range(count):
-            duplicates.append(self.template_factory.clone(expandable, id=i))
+            duplicates.append(self._template_factory.clone(expandable, id=i))
 
         parent_children = []
         parent_children.extend(left)
