@@ -45,6 +45,8 @@ class TemplateEngine(object):
         """Returns a template's maximum possible size depending on the offset of
         its successor or size of it's parent.
         """
+        from .properties import AutoSizeValueProperty
+
         next_sibling = rightsibling(template)
         if next_sibling:
             return next_sibling.offset - template.offset
