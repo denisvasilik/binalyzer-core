@@ -11,6 +11,11 @@ from anytree import findall
 from binalyzer_core import Binalyzer, Template, TemplateFactory
 
 
+@pytest.fixture
+def binalyzer():
+    return Binalyzer()
+
+
 def test_template_factory():
     prototype = Template(name='root')
     duplicate = TemplateFactory().clone(prototype)
@@ -18,16 +23,30 @@ def test_template_factory():
     assert prototype.name == duplicate.name
 
 
-def test_dom_expansion():
+def test_dom_expansion(binalyzer):
     tom = Template(name='a')
     b = Template(name='b', parent=tom)
+
     b.count = 2
+
+    binalyzer.template = tom
+    dom = binalyzer.template
+
+    assert dom.name == tom.name
+    assert id(dom) != id(tom)
+    assert len(list(dom.children)) == 2
+
+
+def test_dom_expansion_nested(binalyzer):
+    tom = Template(name='a')
+    b = Template(name='b', parent=tom)
     c = Template(name='c', parent=b)
-    c.count = 4
     d = Template(name='d', parent=c)
+
+    b.count = 2
+    c.count = 4
     d.count = 3
 
-    binalyzer = Binalyzer()
     binalyzer.template = tom
     dom = binalyzer.template
 
@@ -36,6 +55,40 @@ def test_dom_expansion():
     assert len(list(dom.children)) == 2
     assert len(list(dom.children[0].children)) == 4
     assert len(list(dom.children[0].children[0].children)) == 3
+
+
+def test_dom_reduction(binalyzer):
+    tom = Template(name='a')
+    b = Template(name='b', parent=tom)
+
+    b.count = 0
+
+    binalyzer.template = tom
+    dom = binalyzer.template
+
+    assert dom.name == tom.name
+    assert id(dom) != id(tom)
+    assert len(list(dom.children)) == 0
+
+
+def test_dom_reduction_nested(binalyzer):
+    tom = Template(name='a')
+    b = Template(name='b', parent=tom)
+    c = Template(name='c', parent=b)
+    d = Template(name='d', parent=c)
+
+    b.count = 2
+    c.count = 4
+    d.count = 0
+
+    binalyzer.template = tom
+    dom = binalyzer.template
+
+    assert dom.name == tom.name
+    assert id(dom) != id(tom)
+    assert len(list(dom.children)) == 2
+    assert len(list(dom.children[0].children)) == 4
+    assert len(list(dom.children[0].children[0].children)) == 0
 
 
 @pytest.mark.skip()
