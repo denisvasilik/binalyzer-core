@@ -36,7 +36,7 @@ from .properties import (
     RelativeOffsetValueProperty,
     RelativeOffsetReferenceProperty,
 )
-from .context import (
+from .binding import (
     BindingContext,
     BackedBindingContext,
 )

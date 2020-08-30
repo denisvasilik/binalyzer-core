@@ -12,7 +12,7 @@ import io
 
 from typing import Optional
 
-from .context import BindingContext
+from .binding import BindingContext
 from .template_provider import TemplateProvider
 from .data_provider import DataProvider
 from .template import Template

@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-    binalyzer_core.context
+    binalyzer_core.binding
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    This module implements the binding context that is used to bind templates to
+    This module implements the binding engine that is used to bind templates to
     binary streams.
 
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-import copy
-
+from .factory import TemplateFactory
+from .properties import ValueProperty
 from .template_provider import (
     TemplateProviderBase,
     TemplateProvider,
@@ -18,18 +18,6 @@ from .template_provider import (
 from .data_provider import (
     DataProviderBase,
     ZeroedDataProvider,
-)
-from .factory import TemplateFactory
-
-from anytree import findall
-
-from .properties import (
-    PropertyBase,
-    ValueProperty,
-    RelativeOffsetValueProperty,
-    RelativeOffsetReferenceProperty,
-    AutoSizeValueProperty,
-    AutoSizeReferenceProperty,
 )
 from .utils import (
     leftsiblings,
@@ -44,19 +32,46 @@ class BindingEngine(object):
         if self.template_factory is None:
             self.template_factory = TemplateFactory()
 
-    def create_dom(self, tom, binding_context):
-        # (1) Clone TOM
-        dom = self.template_factory.clone(tom)
-        # (2) Bind data to DOM
-        self.bind(dom, binding_context)
-        # (3) Process DOM
-        self.expand_dom(dom)
-        # (4) Return DOM
-        return dom
-
     def bind(self, template, binding_context):
+        template = self._clone(template, binding_context)
+        template = self._rebind(template, binding_context)
+        template = self._modify(template, binding_context)
+        return template
+
+    def _clone(self, template, binding_context):
+        return self.template_factory.clone(template)
+
+    def _rebind(self, template, binding_context):
         template.binding_context = binding_context
         self._bind_children(template, binding_context)
+        return template
+
+    def _modify(self, template, binding_context):
+        while True:
+            template_branch = self._find(template, lambda t:
+                                                  (t.count > 1 or t.count ==
+                                                   0 or t.signature)
+                                                  )
+            if template_branch is None:
+                break
+            elif template_branch.count > 1:
+                self._expand(template_branch)
+            elif template_branch.count == 0:
+                self._reduce(template_branch)
+            elif template_branch.signature:
+                self._validate(template_branch)
+            else:
+                raise RuntimeError()
+        return template
+
+    def _find(self, template, condition):
+        if condition(template):
+            return template
+        for child in template.children:
+            template = self._find(child, condition)
+            if template:
+                return template
+        return None
 
     def _bind_children(self, template, binding_context):
         if not template.children:
@@ -65,21 +80,7 @@ class BindingEngine(object):
             child.binding_context = binding_context
             self._bind_children(child, binding_context)
 
-    def reduce(self, dom):
-        for t in findall(dom, filter_=lambda t: t.count == 0):
-            t.parent = None
-
-    def validate(self, dom):
-        for t in findall(dom, filter_=lambda t: t.signature):
-            size = len(t.signature)
-            t.binding_context.data_provider.data.seek(t.absolute_address)
-            value = t.binding_context.data_provider.data.read(size)
-            if t.hint is None and t.signature != value:
-                raise RuntimeError("Signature validation failed.")
-            elif t.hint and t.signature != value:
-                t.parent = None
-
-    def validate_template(self, template):
+    def _validate(self, template):
         size = len(template.signature)
         template.binding_context.data_provider.data.seek(
             template.absolute_address)
@@ -90,37 +91,10 @@ class BindingEngine(object):
             template.parent = None
         template.signature = None  # Tree could be annotated instead
 
-    def find_next(self, template, condition):
-        if condition(template):
-            return template
-        for child in template.children:
-            template = self.find_next(child, condition)
-            if template:
-                return template
-        return None
-
-    def expand_dom(self, dom):
-        """ Precondition: DOM slice has not been expanded yet.
-        """
-        while True:
-            template = self.find_next(dom, lambda t:
-                                      (t.count > 1 or t.count == 0 or t.signature)
-                                      )
-            if template is None:
-                break
-            elif template.count > 1:
-                self.expand_template(template)
-            elif template.count == 0:
-                self.reduce_template(template)
-            elif template.signature:
-                self.validate_template(template)
-            else:
-                raise RuntimeError()
-
-    def reduce_template(self, template):
+    def _reduce(self, template):
         template.parent = None
 
-    def expand_template(self, expandable):
+    def _expand(self, expandable):
         # Set count to 1 for duplicates
         count = expandable.count
         expandable.count_property = ValueProperty(1)
@@ -170,28 +144,20 @@ class BindingContext(object):
         self.template_provider = template_provider
         self.template_provider.template.binding_context = self
 
-        self._dom = None
+        self._cached_dom = None
 
     @property
     def template(self):
         """A :class:`~binalyzer.template.Template` that is bound to the
         corresponding binary :attr:`~binalyzer.Binalyzer.data`.
         """
-        if self._dom is None:
-            self._dom = self._binding_engine.create_dom(
-                self.template_provider.template,
-                self
-            )
-        return self._dom
+        return self._create_dom()
 
     @template.setter
     def template(self, value):
         self.template_provider.template = value
         self.template_provider.template.binding_context = self
-        self._dom = self._binding_engine.create_dom(
-            self.template_provider.template,
-            self
-        )
+        self._invalidate_dom()
 
     @property
     def data(self):
@@ -203,6 +169,18 @@ class BindingContext(object):
     @data.setter
     def data(self, value):
         self.data_provider.data = value
+
+    def _invalidate_dom(self):
+        self._cached_dom = None
+
+    def _create_dom(self):
+        if self._cached_dom:
+            return self._cached_dom
+        self._cached_dom = self._binding_engine.bind(
+            self.template_provider.template,
+            self
+        )
+        return self._cached_dom
 
 
 class BackedBindingContext(BindingContext):

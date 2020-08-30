@@ -8,21 +8,16 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-from anytree import NodeMixin, find_by_attr
-from anytree.util import leftsibling, rightsibling
+from anytree import NodeMixin
 
-import copy
-
+from .binding import BackedBindingContext
 from .properties import (
     ValueProperty,
     AutoSizeValueProperty,
     RelativeOffsetValueProperty,
     ReferenceProperty,
 )
-from .context import (
-    BackedBindingContext,
-    BindingEngine,
-)
+
 
 class Template(NodeMixin, object):
     """This class implements the template mechanism as described in :ref:`template`.
@@ -238,7 +233,7 @@ class Template(NodeMixin, object):
     @binding_context.setter
     def binding_context(self, value):
         self._binding_context = value
-        BindingEngine()._bind_children(self, self._binding_context)
+        self._assign_binding_context_to_children()
 
     def _post_attach(self, parent):
         self._add_name_to_parent(parent)
@@ -247,3 +242,9 @@ class Template(NodeMixin, object):
     def _add_name_to_parent(self, parent):
         if self.name:
             parent.__dict__[self.name.replace("-", "_")] = self
+
+    def _assign_binding_context_to_children(self):
+        if self.children:
+            for child in self.children:
+                child.binding_context = self.binding_context
+                child._assign_binding_context_to_children()
