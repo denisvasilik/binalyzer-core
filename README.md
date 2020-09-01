@@ -7,6 +7,7 @@ Features:
 
 * Template Engine
 * Template Providers
+* Template Transformations
 * Data Binding System
 * Data Providers
 * Data Converter
@@ -24,7 +25,7 @@ Binalyzer spans accross several GitHub repositories:
 * [binalyzer-rest]
 * [binalyzer-lsp]
 * [binalyzer-docker]
-* [binalyzer-examples]
+* [binalyzer-wasm]
 
 [binalyzer]: https://github.com/denisvasilik/binalyzer
 [binalyzer-core]: https://github.com/denisvasilik/binalyzer-core
@@ -34,7 +35,7 @@ Binalyzer spans accross several GitHub repositories:
 [binalyzer-rest]: https://github.com/denisvasilik/binalyzer-rest
 [binalyzer-lsp]: https://github.com/denisvasilik/binalyzer-lsp
 [binalyzer-docker]: https://github.com/denisvasilik/binalyzer-docker
-[binalyzer-examples]: https://github.com/denisvasilik/binalyzer-examples
+[binalyzer-wasm]: https://github.com/denisvasilik/binalyzer-wasm
 
 ## Documentation
 
