@@ -118,7 +118,10 @@ class BindingContext(object):
 
         #: The template provider to get the template from.
         self.template_provider = template_provider
-        self.template_provider.template.binding_context = self
+        # FIXME: Use protected variable to avoid binding context propagation.
+        #        This should be done through a dedicated method rather than 
+        #        accessing a protected field.
+        self.template_provider.template._binding_context = self
 
         self._cached_dom = None
 
