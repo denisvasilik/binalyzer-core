@@ -18,6 +18,7 @@ from .template_provider import (
 from .data_provider import (
     DataProviderBase,
     ZeroedDataProvider,
+    ValueDataProvider,
 )
 from .utils import (
     leftsiblings,
@@ -109,7 +110,10 @@ class BindingContext(object):
     """
 
     def __init__(
-        self, template_provider: TemplateProviderBase, data_provider: DataProviderBase
+        self,
+        template_provider: TemplateProviderBase,
+        data_provider: DataProviderBase,
+        propagate=True
     ):
         #: The data provider to get the binary stream from.
         self.data_provider = data_provider
@@ -118,10 +122,11 @@ class BindingContext(object):
 
         #: The template provider to get the template from.
         self.template_provider = template_provider
-        # FIXME: Use protected variable to avoid binding context propagation.
-        #        This should be done through a dedicated method rather than 
-        #        accessing a protected field.
-        self.template_provider.template._binding_context = self
+
+        if propagate:
+            self.template_provider.template.binding_context = self
+        else:
+            self.template_provider.template._binding_context = self
 
         self._cached_dom = None
 
@@ -149,6 +154,11 @@ class BindingContext(object):
     def data(self, value):
         self.data_provider.data = value
 
+    def propagate(self, template):
+        if template.children:
+            for child in template.children:
+                child.binding_context = self
+
     def _invalidate_dom(self):
         self._cached_dom = None
 
@@ -168,6 +178,16 @@ class BackedBindingContext(BindingContext):
     data.
     """
 
-    def __init__(self, template):
+    def __init__(self, template, propagate=True):
         super(BackedBindingContext, self).__init__(
-            TemplateProvider(template), ZeroedDataProvider())
+            TemplateProvider(template), ZeroedDataProvider(), propagate)
+
+
+class ValueBindingContext(BindingContext):
+
+    def __init__(self, template, propagate=True):
+        super(ValueBindingContext, self).__init__(
+            TemplateProvider(template), ValueDataProvider(), propagate)
+
+    def override(self, template):
+        pass

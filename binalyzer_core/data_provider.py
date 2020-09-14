@@ -60,3 +60,22 @@ class BufferedIODataProvider(DataProvider):
 class ZeroedDataProvider(BufferedIODataProvider):
     def __init__(self, size=0):
         super(ZeroedDataProvider, self).__init__(size, 0)
+
+
+class ValueDataProvider(DataProviderBase):
+    def __init__(self, data=bytes()):
+        self._data = data
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
+
+    def read(self, template):
+        return self._data
+
+    def write(self, template, value):
+        self._data = value

@@ -8,23 +8,68 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
+from binalyzer_core.binding import (
+    ValueBindingContext,
+    BackedBindingContext,
+)
 
 
 def transform(source_template, destination_template, additional_data={}):
+    _use_value_binding_context(destination_template)
     _transfer(source_template, destination_template)
     _bind(_diff(source_template, destination_template), additional_data)
+
+
+def aggregate(template):
+    _aggregate(template, BackedBindingContext(template, propagate=False))
+
+
+def _aggregate(template, binding_context):
+    temp_value = None
+    if template.is_leaf:
+        temp_value = template.value
+    template._binding_context = binding_context
+    if temp_value:
+        template.value = temp_value
+    for child in template.children:
+        _aggregate(child, binding_context)
+
+
+def _use_value_binding_context(template):
+    template._binding_context = ValueBindingContext(template, propagate=False)
+    for child in template.children:
+        _use_value_binding_context(child)
+
+
+def _is_path_equal(source_path, dest_path):
+    source_path_str = ''
+    for s in source_path:
+        source_path_str += s.name
+        source_path_str += s.separator
+
+    dest_path_str = ''
+    for s in dest_path:
+        dest_path_str += s.name
+        dest_path_str += s.separator
+
+    return source_path_str == dest_path_str
 
 
 def _transfer(source_template, destination_template):
     existing_leaves = [(source_leave, destination_leave)
                        for source_leave in source_template.leaves
                        for destination_leave in destination_template.leaves
-                       if source_leave.name == destination_leave.name]
+                       if _is_path_equal(source_leave.path, destination_leave.path)]
 
     for (source_leave, destination_leave) in existing_leaves:
-        extension_size = destination_leave.size - source_leave.size
-        destination_leave.value = (source_leave.value +
-                                   bytes([0] * extension_size))
+        extension_size = 0
+        if destination_leave.size > source_leave.size:
+            extension_size = destination_leave.size - source_leave.size
+        destination_leave.value = (
+            source_leave.value + bytes([0] * extension_size))
+        destination_leave.value
+
+    destination_template.clear_cache(destination_template.root)
 
 
 def _diff(source_template, destination_template):

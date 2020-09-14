@@ -5,6 +5,7 @@
     This module implements tests for Binalyzer's transformation module.
 """
 import io
+import pytest
 
 from binalyzer_core import Binalyzer, Template
 

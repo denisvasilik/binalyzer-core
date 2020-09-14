@@ -219,9 +219,7 @@ class Template(NodeMixin, object):
 
     @value.setter
     def value(self, value):
-        # FIX ME: Use event mechanism for decoupling (dependency inversion).
-        if isinstance(self.size_property, AutoSizeValueProperty):
-            self.size = len(value)
+        self.size = len(value)
         self.binding_context.data_provider.write(self, value)
 
     @property
@@ -233,7 +231,7 @@ class Template(NodeMixin, object):
     @binding_context.setter
     def binding_context(self, value):
         self._binding_context = value
-        self._assign_binding_context_to_children()
+        self._binding_context.propagate(self)
 
     def _post_attach(self, parent):
         self._add_name_to_parent(parent)
@@ -243,8 +241,9 @@ class Template(NodeMixin, object):
         if self.name:
             parent.__dict__[self.name.replace("-", "_")] = self
 
-    def _assign_binding_context_to_children(self):
-        if self.children:
-            for child in self.children:
-                child.binding_context = self.binding_context
-                child._assign_binding_context_to_children()
+    # Experimental
+    def clear_cache(self, template):
+        template.offset_property.value_provider._cached_value = None
+        template.size_property.value_provider._cached_value = None
+        for child in template.children:
+            self.clear_cache(child)
