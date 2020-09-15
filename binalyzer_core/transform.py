@@ -69,8 +69,6 @@ def _transfer(source_template, destination_template):
             source_leave.value + bytes([0] * extension_size))
         destination_leave.value
 
-    destination_template.clear_cache(destination_template.root)
-
 
 def _diff(source_template, destination_template):
     return (destination_leave
