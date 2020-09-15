@@ -77,6 +77,7 @@ class Template(NodeMixin, object):
     @offset_property.setter
     def offset_property(self, value):
         self._offset = value
+        self.clear_cache(self.root)
 
     @property
     def size(self):
@@ -85,6 +86,7 @@ class Template(NodeMixin, object):
     @size.setter
     def size(self, value):
         self._size = ValueProperty(value)
+        self.clear_cache(self.root)
 
     @property
     def size_property(self):
@@ -93,6 +95,7 @@ class Template(NodeMixin, object):
     @size_property.setter
     def size_property(self, value):
         self._size = value
+        self.clear_cache(self.root)
 
     @property
     def padding_before(self):
@@ -101,6 +104,7 @@ class Template(NodeMixin, object):
     @padding_before.setter
     def padding_before(self, value):
         self._padding_before.value = value
+        self.clear_cache(self.root)
 
     @property
     def padding_before_property(self):
@@ -109,6 +113,7 @@ class Template(NodeMixin, object):
     @padding_before_property.setter
     def padding_before_property(self, value):
         self._padding_before = value
+        self.clear_cache(self.root)
 
     @property
     def padding_after(self):
@@ -117,6 +122,7 @@ class Template(NodeMixin, object):
     @padding_after.setter
     def padding_after(self, value):
         self._padding_after.value = value
+        self.clear_cache(self.root)
 
     @property
     def padding_after_property(self):
@@ -125,6 +131,7 @@ class Template(NodeMixin, object):
     @padding_after_property.setter
     def padding_after_property(self, value):
         self._padding_after = value
+        self.clear_cache(self.root)
 
     @property
     def boundary(self):
@@ -133,6 +140,7 @@ class Template(NodeMixin, object):
     @boundary.setter
     def boundary(self, value):
         self._boundary.value = value
+        self.clear_cache(self.root)
 
     @property
     def boundary_property(self):
@@ -141,6 +149,7 @@ class Template(NodeMixin, object):
     @boundary_property.setter
     def boundary_property(self, value):
         self._boundary = value
+        self.clear_cache(self.root)
 
     @property
     def count(self):
@@ -157,6 +166,7 @@ class Template(NodeMixin, object):
     @count_property.setter
     def count_property(self, value):
         self._count = value
+        self.clear_cache(self.root)
 
     @property
     def hint(self):
@@ -165,6 +175,7 @@ class Template(NodeMixin, object):
     @hint.setter
     def hint(self, value):
         self._hint = value
+        self.clear_cache(self.root)
 
     @property
     def hint_property(self):
@@ -173,6 +184,7 @@ class Template(NodeMixin, object):
     @hint_property.setter
     def hint_property(self, value):
         self._hint = value
+        self.clear_cache(self.root)
 
     @property
     def signature(self):
@@ -181,6 +193,7 @@ class Template(NodeMixin, object):
     @signature.setter
     def signature(self, value):
         self._signature = value
+        self.clear_cache(self.root)
 
     @property
     def signature_property(self):
@@ -189,6 +202,7 @@ class Template(NodeMixin, object):
     @signature_property.setter
     def signature_property(self, value):
         self._signature = value
+        self.clear_cache(self.root)
 
     @property
     def absolute_address(self):
@@ -242,7 +256,9 @@ class Template(NodeMixin, object):
             parent.__dict__[self.name.replace("-", "_")] = self
 
     # Experimental
-    def clear_cache(self, template):
+    def clear_cache(self, template=None):
+        if template is None:
+            template=self
         template.offset_property.value_provider._cached_value = None
         template.size_property.value_provider._cached_value = None
         for child in template.children:
