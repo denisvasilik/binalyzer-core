@@ -13,6 +13,7 @@ from .properties import (
     ValueProperty,
     FunctionProperty,
     ReferenceProperty,
+    OffsetValueProperty,
     RelativeOffsetValueProperty,
     RelativeOffsetReferenceProperty,
     StretchSizeProperty,
@@ -30,6 +31,7 @@ class PropertyFactory(object):
             ValuePropertyFactory(),
             FunctionPropertyFactory(),
             ReferencePropertyFactory(),
+            OffsetValuePropertyFactory(),
             RelativeOffsetValuePropertyFactory(),
             RelativeOffsetReferencePropertyFactory(),
             StretchSizePropertyFactory(),
@@ -93,6 +95,19 @@ class ReferencePropertyFactory(object):
         return isinstance(obj, ReferenceProperty)
 
 
+class OffsetValuePropertyFactory(object):
+
+    def clone(self, prototype, template):
+        offset_property = OffsetValueProperty(
+            template,
+            prototype.value,
+        )
+        return offset_property
+
+    def is_clonable(self, obj):
+        return isinstance(obj, OffsetValueProperty)
+
+
 class RelativeOffsetValuePropertyFactory(object):
 
     def clone(self, prototype, template):
@@ -100,8 +115,6 @@ class RelativeOffsetValuePropertyFactory(object):
             template,
             prototype.value_provider.ignore_boundary,
         )
-        if prototype.value_provider.ignore_boundary:
-            offset_property.value = prototype.value
         return offset_property
 
     def is_clonable(self, obj):

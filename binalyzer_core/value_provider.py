@@ -79,6 +79,35 @@ class ReferenceValueProvider(ValueProviderBase):
         )
 
 
+class OffsetValueProvider(ValueProvider):
+
+    def __init__(self, template, value):
+        self.template = template
+        self._engine = TemplateEngine()
+        self._cached_value = None
+        super(OffsetValueProvider, self).__init__(value)
+
+    def get_value(self):
+        if not self._cached_value is None:
+            return self._cached_value
+        absolute_address = 0
+        if self.template.parent:
+            absolute_address += self.template.parent.absolute_address
+        absolute_address += self._value
+        absolute_address += self._engine._get_boundary_offset(
+            absolute_address, self.template.boundary
+        )
+        if self.template.parent:
+            relative_offset = absolute_address - self.template.parent.absolute_address
+        else:
+            relative_offset = absolute_address
+        self._cached_value = relative_offset
+        return self._cached_value
+
+    def set_value(self, value):
+        self._value = value
+
+
 class RelativeOffsetValueProvider(ValueProvider):
 
     def __init__(self, template, ignore_boundary=False):
@@ -92,13 +121,13 @@ class RelativeOffsetValueProvider(ValueProvider):
         if not self._cached_value is None:
             return self._cached_value
         self._cached_value = (self._engine.get_offset(self.template,
-                                                      self.ignore_boundary) +
-                              self._value)
+                                                      self.ignore_boundary))
         return self._cached_value
 
     def set_value(self, value):
-        self._cached_value = None
-        self._value = value
+        raise RuntimeError(
+            'Assigning a value to a relative offset is not allowed.'
+        )
 
 
 class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):

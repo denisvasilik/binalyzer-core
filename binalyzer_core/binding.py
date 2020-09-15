@@ -18,7 +18,7 @@ from .template_provider import (
 from .data_provider import (
     DataProviderBase,
     ZeroedDataProvider,
-    ValueDataProvider,
+    PinnedBufferedIODataProvider,
 )
 from .utils import (
     leftsiblings,
@@ -187,7 +187,10 @@ class ValueBindingContext(BindingContext):
 
     def __init__(self, template, propagate=True):
         super(ValueBindingContext, self).__init__(
-            TemplateProvider(template), ValueDataProvider(), propagate)
+            TemplateProvider(template),
+            PinnedBufferedIODataProvider(),
+            propagate
+        )
 
     def override(self, template):
         pass

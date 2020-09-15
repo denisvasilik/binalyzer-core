@@ -36,6 +36,7 @@ from .properties import (
     AutoSizeValueProperty,
     AutoSizeReferenceProperty,
     StretchSizeProperty,
+    OffsetValueProperty,
     RelativeOffsetValueProperty,
     RelativeOffsetReferenceProperty,
 )

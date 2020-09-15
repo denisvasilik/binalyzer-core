@@ -67,7 +67,6 @@ def _transfer(source_template, destination_template):
             extension_size = destination_leave.size - source_leave.size
         destination_leave.value = (
             source_leave.value + bytes([0] * extension_size))
-        destination_leave.value
 
 
 def _diff(source_template, destination_template):

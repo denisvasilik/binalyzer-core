@@ -13,6 +13,7 @@ from anytree import NodeMixin
 from .binding import BackedBindingContext
 from .properties import (
     ValueProperty,
+    OffsetValueProperty,
     AutoSizeValueProperty,
     RelativeOffsetValueProperty,
     ReferenceProperty,
@@ -68,7 +69,7 @@ class Template(NodeMixin, object):
 
     @offset.setter
     def offset(self, value):
-        self._offset.value = value
+        self._offset = OffsetValueProperty(self, value)
 
     @property
     def offset_property(self):
@@ -208,10 +209,11 @@ class Template(NodeMixin, object):
     def absolute_address(self):
         """Provides the absolue address of the template within the binary stream.
         """
-        if isinstance(self.offset_property, ValueProperty):
+        if (isinstance(self.offset_property, ValueProperty)):
             return self.offset
 
-        if isinstance(self.offset_property, RelativeOffsetValueProperty):
+        if (isinstance(self.offset_property, OffsetValueProperty) or
+                isinstance(self.offset_property, RelativeOffsetValueProperty)):
             if self.parent:
                 return self.offset + self.parent.absolute_address
             else:
@@ -255,10 +257,9 @@ class Template(NodeMixin, object):
         if self.name:
             parent.__dict__[self.name.replace("-", "_")] = self
 
-    # Experimental
     def clear_cache(self, template=None):
         if template is None:
-            template=self
+            template = self
         template.offset_property.value_provider._cached_value = None
         template.size_property.value_provider._cached_value = None
         for child in template.children:

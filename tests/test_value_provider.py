@@ -85,5 +85,6 @@ def test_relative_offset_value_provider_instantiation():
 def test_relative_offset_value_provider_set_value():
     template = Template()
     value_provider = RelativeOffsetValueProvider(template)
-    value_provider.set_value(123)
-    assert value_provider.get_value() == 123
+    with pytest.raises(RuntimeError):
+        value_provider.set_value(123)
+    assert value_provider.get_value() == 0

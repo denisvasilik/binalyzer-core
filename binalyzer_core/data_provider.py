@@ -53,6 +53,7 @@ class DataProvider(DataProviderBase):
 class BufferedIODataProvider(DataProvider):
 
     def __init__(self, size=0, value=0):
+        self._value = value
         super(BufferedIODataProvider, self).__init__(
             io.BytesIO(bytes([value] * size)))
 
@@ -60,6 +61,27 @@ class BufferedIODataProvider(DataProvider):
 class ZeroedDataProvider(BufferedIODataProvider):
     def __init__(self, size=0):
         super(ZeroedDataProvider, self).__init__(size, 0)
+
+
+class PinnedBufferedIODataProvider(BufferedIODataProvider):
+    def __init__(self, size=0, value=0, address=0):
+        self._address = address
+        super(PinnedBufferedIODataProvider, self).__init__(size, value)
+
+    def read(self, template):
+        self.extend(template)
+        self.data.seek(self._address)
+        return self.data.read(template.size)
+
+    def write(self, template, value):
+        self.data.seek(self._address)
+        self.data.write(value)
+
+    def extend(self, template):
+        data_size = self.data.seek(0, 2)
+        if template.size > data_size:
+            extension_size = template.size - data_size
+            self.data.write(bytes([self._value] * extension_size))
 
 
 class ValueDataProvider(DataProviderBase):
