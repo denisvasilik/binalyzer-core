@@ -7,9 +7,10 @@
 import io
 import pytest
 
-from binalyzer_core import Binalyzer, Template
-
-from binalyzer_core.transform import transform, aggregate
+from binalyzer_core import (
+    Binalyzer,
+    Template,
+)
 
 
 def test_transform_identity():
@@ -29,9 +30,9 @@ def test_transform_identity():
     source_d = Template(name='d', parent=source_template)
     source_e = Template(name='e', parent=source_template)
 
-    source_binalyzer = Binalyzer()
-    source_binalyzer.data = source_data
-    source_binalyzer.template = source_template
+    binalyzer = Binalyzer()
+    binalyzer.data = source_data
+    binalyzer.template = source_template
 
     source_b.size = 8
     source_c.size = 8
@@ -44,14 +45,14 @@ def test_transform_identity():
     destination_d = Template(name='d', parent=destination_template)
     destination_e = Template(name='e', parent=destination_template)
 
-    transform(source_binalyzer.template, destination_template)
+    binalyzer.project(binalyzer.template, destination_template)
 
     destination_b.size = 8
     destination_c.size = 8
     destination_d.size = 8
     destination_e.size = 8
 
-    aggregate(destination_template)
+    binalyzer.aggregate(destination_template)
 
     assert destination_template.value == expected_bytes
 
@@ -73,9 +74,9 @@ def test_transform():
     source_d = Template(name='d', parent=source_template)
     source_e = Template(name='e', parent=source_template)
 
-    source_binalyzer = Binalyzer()
-    source_binalyzer.data = source_data
-    source_binalyzer.template = source_template
+    binalyzer = Binalyzer()
+    binalyzer.data = source_data
+    binalyzer.template = source_template
 
     source_b.size = 8
     source_c.size = 8
@@ -88,14 +89,14 @@ def test_transform():
     destination_d = Template(name='i', parent=destination_template)
     destination_e = Template(name='j', parent=destination_template)
 
-    transform(source_binalyzer.template, destination_template)
+    binalyzer.project(binalyzer.template, destination_template)
 
     destination_b.size = 8
     destination_c.size = 8
     destination_d.size = 8
     destination_e.size = 8
 
-    aggregate(destination_template)
+    binalyzer.aggregate(destination_template)
 
     assert destination_template.value == expected_bytes
 
@@ -118,9 +119,9 @@ def test_transform_add_template():
     source_d = Template(name='d', parent=source_template)
     source_e = Template(name='e', parent=source_template)
 
-    source_binalyzer = Binalyzer()
-    source_binalyzer.data = source_data
-    source_binalyzer.template = source_template
+    binalyzer = Binalyzer()
+    binalyzer.data = source_data
+    binalyzer.template = source_template
 
     source_b.size = 8
     source_c.size = 8
@@ -134,7 +135,7 @@ def test_transform_add_template():
     destination_e = Template(name='e', parent=destination_template)
     destination_f = Template(name='f', parent=destination_template)
 
-    transform(source_binalyzer.template, destination_template)
+    binalyzer.project(binalyzer.template, destination_template)
 
     destination_b.size = 8
     destination_c.size = 8
@@ -142,7 +143,7 @@ def test_transform_add_template():
     destination_e.size = 8
     destination_f.size = 8
 
-    aggregate(destination_template)
+    binalyzer.aggregate(destination_template)
 
     assert destination_template.value == expected_bytes
 
@@ -163,9 +164,9 @@ def test_transform_remove_template():
     source_d = Template(name='d', parent=source_template)
     source_e = Template(name='e', parent=source_template)
 
-    source_binalyzer = Binalyzer()
-    source_binalyzer.data = source_data
-    source_binalyzer.template = source_template
+    binalyzer = Binalyzer()
+    binalyzer.data = source_data
+    binalyzer.template = source_template
 
     source_b.size = 8
     source_c.size = 8
@@ -177,13 +178,13 @@ def test_transform_remove_template():
     destination_c = Template(name='c', parent=destination_template)
     destination_d = Template(name='d', parent=destination_template)
 
-    transform(source_binalyzer.template, destination_template)
+    binalyzer.project(binalyzer.template, destination_template)
 
     destination_b.size = 8
     destination_c.size = 8
     destination_d.size = 8
 
-    aggregate(destination_template)
+    binalyzer.aggregate(destination_template)
 
     assert destination_template.value == expected_bytes
 
@@ -205,9 +206,9 @@ def test_transform_shrink_template():
     source_d = Template(name='d', parent=source_template)
     source_e = Template(name='e', parent=source_template)
 
-    source_binalyzer = Binalyzer()
-    source_binalyzer.data = source_data
-    source_binalyzer.template = source_template
+    binalyzer = Binalyzer()
+    binalyzer.data = source_data
+    binalyzer.template = source_template
 
     source_b.size = 8
     source_c.size = 8
@@ -220,14 +221,14 @@ def test_transform_shrink_template():
     destination_d = Template(name='d', parent=destination_template)
     destination_e = Template(name='e', parent=destination_template)
 
-    transform(source_binalyzer.template, destination_template)
+    binalyzer.project(binalyzer.template, destination_template)
 
     destination_b.size = 4
     destination_c.size = 5
     destination_d.size = 6
     destination_e.size = 7
 
-    aggregate(destination_template)
+    binalyzer.aggregate(destination_template)
 
     assert destination_template.value == expected_bytes
 
@@ -253,9 +254,9 @@ def test_transform_grow_template():
     source_d = Template(name='d', parent=source_template)
     source_e = Template(name='e', parent=source_template)
 
-    source_binalyzer = Binalyzer()
-    source_binalyzer.data = source_data
-    source_binalyzer.template = source_template
+    binalyzer = Binalyzer()
+    binalyzer.data = source_data
+    binalyzer.template = source_template
 
     source_b.size = 8
     source_c.size = 8
@@ -268,13 +269,13 @@ def test_transform_grow_template():
     destination_d = Template(name='d', parent=destination_template)
     destination_e = Template(name='e', parent=destination_template)
 
-    transform(source_binalyzer.template, destination_template)
+    binalyzer.project(binalyzer.template, destination_template)
 
     destination_b.size = 16
     destination_c.size = 15
     destination_d.size = 14
     destination_e.size = 13
 
-    aggregate(destination_template)
+    binalyzer.aggregate(destination_template)
 
     assert destination_template.value == expected_bytes

@@ -16,6 +16,12 @@ from .binding import BindingContext
 from .template_provider import TemplateProvider
 from .data_provider import DataProvider
 from .template import Template
+from .modify import (
+    transform,
+    split,
+    project,
+    aggregate,
+)
 
 
 class Binalyzer(object):
@@ -132,3 +138,30 @@ class Binalyzer(object):
 
     def _register_extensions(self):
         pass
+
+    def transform(
+        self,
+        source_template,
+        destination_template,
+        additional_data={}
+    ):
+        transform(
+            source_template,
+            destination_template,
+            additional_data
+        )
+
+    def project(
+        self,
+        source_template,
+        destination_template,
+        additional_data={}
+    ):
+        project(
+            source_template,
+            destination_template,
+            additional_data
+        )
+
+    def aggregate(self, template):
+        aggregate(template)
