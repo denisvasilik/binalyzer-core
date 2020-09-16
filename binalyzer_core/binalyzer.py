@@ -18,7 +18,6 @@ from .data_provider import DataProvider
 from .template import Template
 from .modify import (
     transform,
-    split,
     project,
     aggregate,
 )
