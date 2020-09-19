@@ -29,10 +29,15 @@ def project(source_template, destination_template, additional_data={}):
 
     for (source_leave, destination_leave) in existing_leaves:
         extension_size = 0
+        overriden_size = 0
+        if destination_leave.size >= 0:
+            overriden_size = destination_leave.size
         if destination_leave.size > source_leave.size:
             extension_size = destination_leave.size - source_leave.size
         destination_leave.value = (
             source_leave.value + bytes([0] * extension_size))
+        if overriden_size:
+            destination_leave.size = overriden_size
 
     _bind(_diff(source_template, destination_template), additional_data)
 
