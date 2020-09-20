@@ -31,7 +31,6 @@ def test_relative_offset_value_property_factory():
     factory = RelativeOffsetValuePropertyFactory()
     offset_property = RelativeOffsetValueProperty(template0)
     duplicate = factory.clone(offset_property, template1)
-    assert id(offset_property.value_converter) == id(duplicate.value_converter)
     assert id(offset_property.value_provider) != id(duplicate.value_provider)
     assert id(offset_property.template) == id(template0)
     assert id(duplicate.template) == id(template1)

@@ -54,14 +54,24 @@ def test_function_value_provider_set_value():
     assert value_provider.get_value() == 78
 
 
-def test_reference_value_provider_get_value():
+def test_reference_value_provider_get_little_endian_value():
     template_a = Template(name='a')
     template_b = Template(name='b', parent=template_a)
     template_c = Template(name='c', parent=template_a)
     template_c.size = 4
     template_c.value = bytes([0x01, 0x02, 0x03, 0x04])
     value_provider = ReferenceValueProvider(template_b, 'c')
-    assert value_provider.get_value() == bytes([0x01, 0x02, 0x03, 0x04])
+    assert value_provider.get_value() == 67305985
+
+
+def test_reference_value_provider_get_big_endian_value():
+    template_a = Template(name='a')
+    template_b = Template(name='b', parent=template_a)
+    template_c = Template(name='c', parent=template_a)
+    template_c.size = 4
+    template_c.value = bytes([0x01, 0x02, 0x03, 0x04])
+    value_provider = ReferenceValueProvider(template_b, 'c', 'big')
+    assert value_provider.get_value() == 16909060
 
 
 def test_reference_value_provider_set_value():
@@ -73,7 +83,7 @@ def test_reference_value_provider_set_value():
     value_provider = ReferenceValueProvider(template_b, 'c')
     with pytest.raises(RuntimeError):
         value_provider.set_value(bytes([0x07, 0x08, 0x09, 0x0A]))
-    assert value_provider.get_value() == bytes([0x01, 0x02, 0x03, 0x04])
+    assert value_provider.get_value() == 67305985
 
 
 def test_relative_offset_value_provider_instantiation():
