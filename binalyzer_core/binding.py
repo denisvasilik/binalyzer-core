@@ -183,10 +183,10 @@ class BackedBindingContext(BindingContext):
             TemplateProvider(template), ZeroedDataProvider(), propagate)
 
 
-class ValueBindingContext(BindingContext):
+class PinnedBindingContext(BindingContext):
 
     def __init__(self, template, propagate=True):
-        super(ValueBindingContext, self).__init__(
+        super(PinnedBindingContext, self).__init__(
             TemplateProvider(template),
             PinnedBufferedIODataProvider(),
             propagate

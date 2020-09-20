@@ -9,7 +9,7 @@
     :license: MIT
 """
 from binalyzer_core.binding import (
-    ValueBindingContext,
+    PinnedBindingContext,
     BackedBindingContext,
 )
 
@@ -47,7 +47,7 @@ def aggregate(template):
 
 
 def _split(template):
-    template._binding_context = ValueBindingContext(template, propagate=False)
+    template._binding_context = PinnedBindingContext(template, propagate=False)
     for child in template.children:
         _split(child)
 
