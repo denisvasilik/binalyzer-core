@@ -9,7 +9,6 @@
     :license: MIT
 """
 from anytree import findall_by_attr
-from anytree.util import leftsibling, rightsibling
 
 from .template_engine import TemplateEngine
 
@@ -47,29 +46,22 @@ class FunctionValueProvider(ValueProviderBase):
         raise RuntimeError('Not supported')
 
 
-def find_by_scope(template, reference_name):
-    while template.parent:
-        result = findall_by_attr(template.parent, reference_name)
-        if result:
-            return result[0]
-        template = template.parent
-    raise RuntimeError(
-        'Unable to find referenced template "' + reference_name + '".'
-    )
-
-
 class ReferenceValueProvider(ValueProviderBase):
 
-    def __init__(self, template, reference_name):
+    def __init__(self, template, reference_name, endianess='little'):
         self.template = template
         self.reference_name = reference_name
+        self.byte_order = endianess
         self._cached_value = None
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        self._cached_value = find_by_scope(
-            self.template, self.reference_name).value
+        referenced_template = find_by_scope(self.template, self.reference_name)
+        self._cached_value = int.from_bytes(
+            referenced_template.value,
+            self.byte_order,
+        )
         return self._cached_value
 
     def set_value(self, value):
@@ -181,3 +173,14 @@ class StretchSizeValueProvider(ValueProvider):
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
+
+
+def find_by_scope(template, reference_name):
+    while template.parent:
+        result = findall_by_attr(template.parent, reference_name)
+        if result:
+            return result[0]
+        template = template.parent
+    raise RuntimeError(
+        'Unable to find referenced template "' + reference_name + '".'
+    )
