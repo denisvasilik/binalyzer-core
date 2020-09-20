@@ -82,22 +82,3 @@ class PinnedBufferedIODataProvider(BufferedIODataProvider):
         if template.size > data_size:
             extension_size = template.size - data_size
             self.data.write(bytes([self._value] * extension_size))
-
-
-class ValueDataProvider(DataProviderBase):
-    def __init__(self, data=bytes()):
-        self._data = data
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, value):
-        self._data = value
-
-    def read(self, template):
-        return self._data
-
-    def write(self, template, value):
-        self._data = value
