@@ -10,7 +10,7 @@ Core Features:
 * Template Transformations
 * Data Binding System
 * Data Providers
-* Data Converter
+* Value Providers
 * Extension Mechanism
 
 The core features are part of the overall [Binalyzer] project and come with its

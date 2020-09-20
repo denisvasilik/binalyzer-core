@@ -86,7 +86,7 @@ class ReferencePropertyFactory(object):
             template,
             prototype.value_provider.reference_name
         )
-        ref_property.value_provider.endianess = prototype.value_provider.endianess
+        ref_property.value_provider.byteorder = prototype.value_provider.byteorder
         return ref_property
 
     def is_clonable(self, obj):

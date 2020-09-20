@@ -48,10 +48,10 @@ class FunctionValueProvider(ValueProviderBase):
 
 class ReferenceValueProvider(ValueProviderBase):
 
-    def __init__(self, template, reference_name, endianess='little'):
+    def __init__(self, template, reference_name, byteorder='little'):
         self.template = template
         self.reference_name = reference_name
-        self.byte_order = endianess
+        self.byteorder = byteorder
         self._cached_value = None
 
     def get_value(self):
@@ -60,7 +60,7 @@ class ReferenceValueProvider(ValueProviderBase):
         referenced_template = find_by_scope(self.template, self.reference_name)
         self._cached_value = int.from_bytes(
             referenced_template.value,
-            self.byte_order,
+            self.byteorder,
         )
         return self._cached_value
 
