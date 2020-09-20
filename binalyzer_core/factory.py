@@ -21,7 +21,6 @@ from .properties import (
     AutoSizeReferenceProperty,
 )
 from .value_provider import RelativeOffsetValueProvider
-from .converter import IdentityValueConverter
 
 
 class PropertyFactory(object):
@@ -53,7 +52,6 @@ class PropertyBaseFactory(object):
         return PropertyBase(
             template=template,
             value_provider=type(prototype.value_provider)(template),
-            value_converter=type(prototype.value_converter)(),
         )
 
     def is_clonable(self, obj):
@@ -66,7 +64,6 @@ class ValuePropertyFactory(object):
         return ValueProperty(
             value=prototype.value_provider.get_value(),
             template=template,
-            value_converter=prototype.value_converter,
         )
 
     def is_clonable(self, obj):
@@ -85,11 +82,12 @@ class FunctionPropertyFactory(object):
 class ReferencePropertyFactory(object):
 
     def clone(self, prototype, template):
-        return ReferenceProperty(
+        ref_property = ReferenceProperty(
             template,
-            prototype.value_provider.reference_name,
-            prototype.value_converter,
+            prototype.value_provider.reference_name
         )
+        ref_property.value_provider.byteorder = prototype.value_provider.byteorder
+        return ref_property
 
     def is_clonable(self, obj):
         return isinstance(obj, ReferenceProperty)

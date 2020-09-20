@@ -44,6 +44,9 @@ from .binding import (
     BindingContext,
     BackedBindingContext,
 )
+from .factory import (
+    TemplateFactory,
+)
 from .template_provider import (
     TemplateProviderBase,
     TemplateProvider,
@@ -55,11 +58,6 @@ from .data_provider import (
     BufferedIODataProvider,
     ZeroedDataProvider,
 )
-from .utils import (
-    siblings,
-    rightsiblings,
-    leftsiblings,
-)
 from .value_provider import (
     ValueProviderBase,
     ValueProvider,
@@ -70,10 +68,8 @@ from .value_provider import (
     AutoSizeValueProvider,
     StretchSizeValueProvider,
 )
-from .converter import (
-    IdentityValueConverter,
-    IntegerValueConverter,
-)
-from .factory import (
-    TemplateFactory,
+from .utils import (
+    siblings,
+    rightsiblings,
+    leftsiblings,
 )

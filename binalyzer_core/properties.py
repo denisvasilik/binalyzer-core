@@ -3,14 +3,11 @@
     binalyzer_core.properties
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    This module implements the properties of a template.
+    This module implements template properties.
 
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-from anytree import find_by_attr
-from anytree.util import rightsibling
-
 from .value_provider import (
     ValueProvider,
     FunctionValueProvider,
@@ -21,48 +18,28 @@ from .value_provider import (
     RelativeOffsetReferenceValueProvider,
     StretchSizeValueProvider,
 )
-from .converter import (
-    IdentityValueConverter,
-    IntegerValueConverter,
-)
 
 
 class PropertyBase(object):
 
-    def __init__(
-        self,
-        template,
-        value_provider,
-        value_converter=IdentityValueConverter()
-    ):
+    def __init__(self, template, value_provider):
         self.template = template
         self.value_provider = value_provider
-        self.value_converter = value_converter
 
     @property
     def value(self):
-        return self.value_converter.convert(
-            self.value_provider.get_value(), self.template)
+        return self.value_provider.get_value()
 
     @value.setter
     def value(self, value):
-        self.value_provider.set_value(
-            self.value_converter.convert_back(value, self.template))
+        self.value_provider.set_value(value)
 
 
 class ValueProperty(PropertyBase):
 
-    def __init__(
-        self,
-        value=0,
-        template=None,
-        value_converter=IdentityValueConverter()
-    ):
+    def __init__(self, value=0, template=None):
         super(ValueProperty, self).__init__(
-            template,
-            ValueProvider(value),
-            value_converter,
-        )
+            template, ValueProvider(value))
 
 
 class FunctionProperty(PropertyBase):
@@ -74,17 +51,9 @@ class FunctionProperty(PropertyBase):
 
 class ReferenceProperty(PropertyBase):
 
-    def __init__(
-        self,
-        template,
-        reference_name,
-        value_converter=IntegerValueConverter()
-    ):
+    def __init__(self, template, reference_name):
         super(ReferenceProperty, self).__init__(
-            template,
-            ReferenceValueProvider(template, reference_name),
-            value_converter,
-        )
+            template, ReferenceValueProvider(template, reference_name))
 
 
 class OffsetValueProperty(PropertyBase):
