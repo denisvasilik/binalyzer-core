@@ -31,10 +31,8 @@ from .template_engine import (
 from .properties import (
     PropertyBase,
     ValueProperty,
-    FunctionProperty,
     ReferenceProperty,
     AutoSizeValueProperty,
-    AutoSizeReferenceProperty,
     StretchSizeProperty,
     OffsetValueProperty,
     RelativeOffsetValueProperty,
@@ -61,8 +59,6 @@ from .data_provider import (
 from .value_provider import (
     ValueProviderBase,
     ValueProvider,
-    FunctionValueProvider,
-    ReferenceValueProvider,
     RelativeOffsetValueProvider,
     RelativeOffsetReferenceValueProvider,
     AutoSizeValueProvider,

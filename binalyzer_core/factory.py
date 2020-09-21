@@ -11,14 +11,12 @@
 from .properties import (
     PropertyBase,
     ValueProperty,
-    FunctionProperty,
     ReferenceProperty,
     OffsetValueProperty,
     RelativeOffsetValueProperty,
     RelativeOffsetReferenceProperty,
     StretchSizeProperty,
     AutoSizeValueProperty,
-    AutoSizeReferenceProperty,
 )
 from .value_provider import RelativeOffsetValueProvider
 
@@ -27,15 +25,13 @@ class PropertyFactory(object):
 
     def __init__(self):
         self.property_factories = [
-            ValuePropertyFactory(),
-            FunctionPropertyFactory(),
-            ReferencePropertyFactory(),
             OffsetValuePropertyFactory(),
             RelativeOffsetValuePropertyFactory(),
             RelativeOffsetReferencePropertyFactory(),
             StretchSizePropertyFactory(),
             AutoSizeValuePropertyFactory(),
-            AutoSizeReferencePropertyFactory(),
+            ReferencePropertyFactory(),
+            ValuePropertyFactory(),
             PropertyBaseFactory(),
         ]
 
@@ -49,10 +45,12 @@ class PropertyFactory(object):
 class PropertyBaseFactory(object):
 
     def clone(self, prototype, template):
-        return PropertyBase(
+        property_base = PropertyBase(
             template=template,
-            value_provider=type(prototype.value_provider)(template),
+            value_provider=None,
         )
+        property_base.value_provider = type(prototype.value_provider)(property_base)
+        return property_base
 
     def is_clonable(self, obj):
         return isinstance(obj, PropertyBase)
@@ -62,7 +60,7 @@ class ValuePropertyFactory(object):
 
     def clone(self, prototype, template):
         return ValueProperty(
-            value=prototype.value_provider.get_value(),
+            value=prototype.value,
             template=template,
         )
 
@@ -70,23 +68,14 @@ class ValuePropertyFactory(object):
         return isinstance(obj, ValueProperty)
 
 
-class FunctionPropertyFactory(object):
-
-    def clone(self, prototype, template):
-        return FunctionProperty(template)
-
-    def is_clonable(self, obj):
-        return isinstance(obj, FunctionProperty)
-
-
 class ReferencePropertyFactory(object):
 
     def clone(self, prototype, template):
         ref_property = ReferenceProperty(
             template,
-            prototype.value_provider.reference_name
+            prototype.reference_name
         )
-        ref_property.value_provider.byteorder = prototype.value_provider.byteorder
+        ref_property.value_provider = type(prototype.value_provider)(ref_property)
         return ref_property
 
     def is_clonable(self, obj):
@@ -111,7 +100,7 @@ class RelativeOffsetValuePropertyFactory(object):
     def clone(self, prototype, template):
         offset_property = RelativeOffsetValueProperty(
             template,
-            prototype.value_provider.ignore_boundary,
+            prototype.ignore_boundary,
         )
         return offset_property
 
@@ -124,7 +113,7 @@ class RelativeOffsetReferencePropertyFactory(object):
     def clone(self, prototype, template):
         return RelativeOffsetReferenceProperty(
             template,
-            prototype.value_provider.reference_name,
+            prototype.reference_name,
         )
 
     def is_clonable(self, obj):
@@ -147,15 +136,6 @@ class AutoSizeValuePropertyFactory(object):
 
     def is_clonable(self, obj):
         return isinstance(obj, AutoSizeValueProperty)
-
-
-class AutoSizeReferencePropertyFactory(object):
-
-    def clone(self, prototype, template):
-        return AutoSizeReferenceProperty(template)
-
-    def is_clonable(self, obj):
-        return isinstance(obj, AutoSizeReferenceProperty)
 
 
 class TemplateFactory(object):

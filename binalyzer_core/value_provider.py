@@ -15,6 +15,9 @@ from .template_engine import TemplateEngine
 
 class ValueProviderBase(object):
 
+    def __init__(self, property):
+        self.property = property
+
     def get_value(self):
         pass
 
@@ -24,8 +27,9 @@ class ValueProviderBase(object):
 
 class ValueProvider(ValueProviderBase):
 
-    def __init__(self, value=0):
-        self._value = value
+    def __init__(self, property):
+        self._value = 0
+        super(ValueProvider, self).__init__(property)
 
     def get_value(self):
         return self._value
@@ -34,63 +38,49 @@ class ValueProvider(ValueProviderBase):
         self._value = value
 
 
-class FunctionValueProvider(ValueProviderBase):
+class TemplateValueProvider(ValueProviderBase):
 
-    def __init__(self, func=None):
-        self.func = func
-
-    def get_value(self):
-        return self.func()
-
-    def set_value(self, func):
-        raise RuntimeError('Not supported')
-
-
-class ReferenceValueProvider(ValueProviderBase):
-
-    def __init__(self, template, reference_name, byteorder='little'):
-        self.template = template
-        self.reference_name = reference_name
-        self.byteorder = byteorder
+    def __init__(self, property):
+        self.byteorder = 'little'
         self._cached_value = None
+        super(TemplateValueProvider, self).__init__(property)
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        referenced_template = find_by_scope(self.template, self.reference_name)
         self._cached_value = int.from_bytes(
-            referenced_template.value,
+            self.property.template.value,
             self.byteorder,
         )
         return self._cached_value
 
     def set_value(self, value):
         raise RuntimeError(
-            'Unable to assign a value to a reference. Consider setting the '
-            'value of the referenced template instead.'
+            'Read-Only: Unable to assign a value to template using a value '
+            'provider.'
         )
 
 
 class OffsetValueProvider(ValueProvider):
 
-    def __init__(self, template, value):
-        self.template = template
+    def __init__(self, property):
         self._engine = TemplateEngine()
         self._cached_value = None
-        super(OffsetValueProvider, self).__init__(value)
+        super(OffsetValueProvider, self).__init__(property)
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
         absolute_address = 0
-        if self.template.parent:
-            absolute_address += self.template.parent.absolute_address
+        template = self.property.template
+        if template.parent:
+            absolute_address += template.parent.absolute_address
         absolute_address += self._value
         absolute_address += self._engine._get_boundary_offset(
-            absolute_address, self.template.boundary
+            absolute_address, template.boundary
         )
-        if self.template.parent:
-            relative_offset = absolute_address - self.template.parent.absolute_address
+        if template.parent:
+            relative_offset = absolute_address - template.parent.absolute_address
         else:
             relative_offset = absolute_address
         self._cached_value = relative_offset
@@ -100,59 +90,57 @@ class OffsetValueProvider(ValueProvider):
         self._value = value
 
 
-class RelativeOffsetValueProvider(ValueProvider):
+class RelativeOffsetValueProvider(ValueProviderBase):
 
-    def __init__(self, template, ignore_boundary=False):
-        self.template = template
-        self.ignore_boundary = ignore_boundary
+    def __init__(self, property):
+        self.ignore_boundary = False
         self._engine = TemplateEngine()
         self._cached_value = None
-        super(RelativeOffsetValueProvider, self).__init__()
+        super(RelativeOffsetValueProvider, self).__init__(property)
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        self._cached_value = (self._engine.get_offset(self.template,
+        self._cached_value = (self._engine.get_offset(self.property.template,
                                                       self.ignore_boundary))
         return self._cached_value
 
     def set_value(self, value):
         raise RuntimeError(
-            'Assigning a value to a relative offset is not allowed.'
+            'Read-Only: Assigning a value to a relative offset is not allowed.'
         )
 
 
-class RelativeOffsetReferenceValueProvider(ReferenceValueProvider):
+class RelativeOffsetReferenceValueProvider(ValueProviderBase):
 
-    def __init__(self, template, reference_name):
+    def __init__(self, property):
         self._engine = TemplateEngine()
         self._cached_value = None
-        super(RelativeOffsetReferenceValueProvider, self).__init__(
-            template, reference_name)
+        super(RelativeOffsetReferenceValueProvider, self).__init__(property)
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        self._cached_value = (self._engine.get_offset(self.template) +
-                              find_by_scope(self.template, self.reference_name).value)
+        self._cached_value = (self._engine.get_offset(self.property.template) +
+                              self.property.template.value)
         return self._cached_value
 
     def set_value(self, value):
         self._cached_value = None
-        find_by_scope(self.template, self.reference_name).value = value
+        self.property.template.value = value
 
 
-class AutoSizeValueProvider(ValueProvider):
+class AutoSizeValueProvider(ValueProviderBase):
 
-    def __init__(self, template):
-        self.template = template
+    def __init__(self, property):
         self._engine = TemplateEngine()
         self._cached_value = None
+        super(AutoSizeValueProvider, self).__init__(property)
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        self._cached_value = self._engine.get_size(self.template)
+        self._cached_value = self._engine.get_size(self.property.template)
         return self._cached_value
 
     def set_value(self, value):
@@ -161,26 +149,15 @@ class AutoSizeValueProvider(ValueProvider):
 
 class StretchSizeValueProvider(ValueProvider):
 
-    def __init__(self, template):
-        self.template = template
+    def __init__(self, property):
         self._engine = TemplateEngine()
         self._cached_value = None
+        super(StretchSizeValueProvider, self).__init__(property)
 
     def get_value(self):
         if not self._cached_value is None:
             return self._cached_value
-        return self._engine.get_max_size(self.template)
+        return self._engine.get_max_size(self.property.template)
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
-
-
-def find_by_scope(template, reference_name):
-    while template.parent:
-        result = findall_by_attr(template.parent, reference_name)
-        if result:
-            return result[0]
-        template = template.parent
-    raise RuntimeError(
-        'Unable to find referenced template "' + reference_name + '".'
-    )

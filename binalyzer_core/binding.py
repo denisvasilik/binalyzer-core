@@ -67,7 +67,9 @@ class BindingEngine(object):
             template.absolute_address)
         value = template.binding_context.data_provider.data.read(size)
         if template.hint is None and template.signature != value:
-            raise RuntimeError("Signature validation failed.")
+            raise RuntimeError(
+                f"Signature validation failed for '{template.name}'."
+            )
         elif template.hint and template.signature != value:
             template.parent = None
         template.signature = None
