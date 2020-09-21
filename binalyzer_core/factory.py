@@ -45,11 +45,9 @@ class PropertyFactory(object):
 class PropertyBaseFactory(object):
 
     def clone(self, prototype, template):
-        property_base = PropertyBase(
-            template=template,
-            value_provider=None,
-        )
-        property_base.value_provider = type(prototype.value_provider)(property_base)
+        property_base = PropertyBase(template)
+        property_base.value_provider = type(
+            prototype.value_provider)(property_base)
         return property_base
 
     def is_clonable(self, obj):
@@ -59,10 +57,7 @@ class PropertyBaseFactory(object):
 class ValuePropertyFactory(object):
 
     def clone(self, prototype, template):
-        return ValueProperty(
-            value=prototype.value,
-            template=template,
-        )
+        return ValueProperty(prototype.value, template)
 
     def is_clonable(self, obj):
         return isinstance(obj, ValueProperty)
@@ -75,7 +70,8 @@ class ReferencePropertyFactory(object):
             template,
             prototype.reference_name
         )
-        ref_property.value_provider = type(prototype.value_provider)(ref_property)
+        ref_property.value_provider = type(
+            prototype.value_provider)(ref_property)
         return ref_property
 
     def is_clonable(self, obj):
@@ -85,11 +81,10 @@ class ReferencePropertyFactory(object):
 class OffsetValuePropertyFactory(object):
 
     def clone(self, prototype, template):
-        offset_property = OffsetValueProperty(
+        return OffsetValueProperty(
             template,
             prototype.value,
         )
-        return offset_property
 
     def is_clonable(self, obj):
         return isinstance(obj, OffsetValueProperty)
@@ -98,11 +93,10 @@ class OffsetValuePropertyFactory(object):
 class RelativeOffsetValuePropertyFactory(object):
 
     def clone(self, prototype, template):
-        offset_property = RelativeOffsetValueProperty(
+        return RelativeOffsetValueProperty(
             template,
             prototype.ignore_boundary,
         )
-        return offset_property
 
     def is_clonable(self, obj):
         return isinstance(obj, RelativeOffsetValueProperty)
