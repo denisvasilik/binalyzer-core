@@ -18,7 +18,6 @@ from .properties import (
     StretchSizeProperty,
     AutoSizeValueProperty,
 )
-from .value_provider import RelativeOffsetValueProvider
 
 
 class PropertyFactory(object):
