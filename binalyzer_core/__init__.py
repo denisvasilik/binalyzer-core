@@ -63,6 +63,7 @@ from .value_provider import (
     RelativeOffsetReferenceValueProvider,
     AutoSizeValueProvider,
     StretchSizeValueProvider,
+    TemplateValueProvider,
 )
 from .utils import (
     siblings,
