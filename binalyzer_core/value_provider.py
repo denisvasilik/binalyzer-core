@@ -8,21 +8,31 @@
     :copyright: 2020 Denis Vasilík
     :license: MIT
 """
-from anytree import findall_by_attr
-
 from .template_engine import TemplateEngine
+
+
+def value_cache(func):
+    def wrapper(*args, **kwargs):
+        if args[0]._cached_value is None:
+            args[0]._cached_value = func(*args, **kwargs)
+        return args[0]._cached_value
+    return wrapper
 
 
 class ValueProviderBase(object):
 
     def __init__(self, property):
         self.property = property
+        self._cached_value = None
 
     def get_value(self):
         pass
 
     def set_value(self, value):
         pass
+
+    def clear_cache(self):
+        self._cached_value = None
 
 
 class ValueProvider(ValueProviderBase):
@@ -42,17 +52,14 @@ class TemplateValueProvider(ValueProviderBase):
 
     def __init__(self, property):
         self.byteorder = 'little'
-        self._cached_value = None
         super(TemplateValueProvider, self).__init__(property)
 
+    @value_cache
     def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
-        self._cached_value = int.from_bytes(
+        return int.from_bytes(
             self.property.template.value,
             self.byteorder,
         )
-        return self._cached_value
 
     def set_value(self, value):
         raise RuntimeError(
@@ -65,12 +72,10 @@ class OffsetValueProvider(ValueProvider):
 
     def __init__(self, property):
         self._engine = TemplateEngine()
-        self._cached_value = None
         super(OffsetValueProvider, self).__init__(property)
 
+    @value_cache
     def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
         absolute_address = 0
         template = self.property.template
         if template.parent:
@@ -83,8 +88,7 @@ class OffsetValueProvider(ValueProvider):
             relative_offset = absolute_address - template.parent.absolute_address
         else:
             relative_offset = absolute_address
-        self._cached_value = relative_offset
-        return self._cached_value
+        return relative_offset
 
     def set_value(self, value):
         self._value = value
@@ -95,15 +99,12 @@ class RelativeOffsetValueProvider(ValueProviderBase):
     def __init__(self, property):
         self.ignore_boundary = False
         self._engine = TemplateEngine()
-        self._cached_value = None
         super(RelativeOffsetValueProvider, self).__init__(property)
 
+    @value_cache
     def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
-        self._cached_value = (self._engine.get_offset(self.property.template,
-                                                      self.ignore_boundary))
-        return self._cached_value
+        return self._engine.get_offset(self.property.template,
+                                       self.ignore_boundary)
 
     def set_value(self, value):
         raise RuntimeError(
@@ -115,18 +116,15 @@ class RelativeOffsetReferenceValueProvider(ValueProviderBase):
 
     def __init__(self, property):
         self._engine = TemplateEngine()
-        self._cached_value = None
         super(RelativeOffsetReferenceValueProvider, self).__init__(property)
 
+    @value_cache
     def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
-        self._cached_value = (self._engine.get_offset(self.property.template) +
-                              self.property.template.value)
-        return self._cached_value
+        return (self._engine.get_offset(self.property.template) +
+                self.property.template.value)
 
     def set_value(self, value):
-        self._cached_value = None
+        self.clear_cache()
         self.property.template.value = value
 
 
@@ -134,14 +132,11 @@ class AutoSizeValueProvider(ValueProviderBase):
 
     def __init__(self, property):
         self._engine = TemplateEngine()
-        self._cached_value = None
         super(AutoSizeValueProvider, self).__init__(property)
 
+    @value_cache
     def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
-        self._cached_value = self._engine.get_size(self.property.template)
-        return self._cached_value
+        return self._engine.get_size(self.property.template)
 
     def set_value(self, value):
         raise RuntimeError('Not supported')
@@ -151,12 +146,10 @@ class StretchSizeValueProvider(ValueProvider):
 
     def __init__(self, property):
         self._engine = TemplateEngine()
-        self._cached_value = None
         super(StretchSizeValueProvider, self).__init__(property)
 
+    @value_cache
     def get_value(self):
-        if not self._cached_value is None:
-            return self._cached_value
         return self._engine.get_max_size(self.property.template)
 
     def set_value(self, value):

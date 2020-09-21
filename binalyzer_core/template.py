@@ -260,7 +260,7 @@ class Template(NodeMixin, object):
     def clear_cache(self, template=None):
         if template is None:
             template = self
-        template.offset_property.value_provider._cached_value = None
-        template.size_property.value_provider._cached_value = None
+        template.offset_property.value_provider.clear_cache()
+        template.size_property.value_provider.clear_cache()
         for child in template.children:
             self.clear_cache(child)

@@ -64,6 +64,7 @@ from .value_provider import (
     AutoSizeValueProvider,
     StretchSizeValueProvider,
     TemplateValueProvider,
+    value_cache,
 )
 from .utils import (
     siblings,
