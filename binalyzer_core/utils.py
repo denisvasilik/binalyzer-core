@@ -36,4 +36,3 @@ def rightsiblings(node: NodeMixin):
         siblings.append(sibling)
         sibling = rightsibling(sibling)
     return siblings
-

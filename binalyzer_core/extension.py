@@ -5,6 +5,7 @@
     This module supports the creation of Binalyzer extensions.
 """
 
+
 class BinalyzerExtension(object):
     """Base class for Binalyzer extensions.
     """
