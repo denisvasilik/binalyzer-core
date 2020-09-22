@@ -57,7 +57,7 @@ def test_get_size_without_children_and_boundary(engine):
 def test_get_size_without_children_but_with_boundary(engine):
     template = Template()
     template.boundary = 0x100
-    assert engine.get_size(template) == 0x100
+    assert engine.get_size(template) == 0
 
 
 def test_get_size_with_children_and_without_boundary(engine):

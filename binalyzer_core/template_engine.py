@@ -10,6 +10,8 @@
 """
 from anytree.util import rightsibling
 
+from .utils import rightsiblings
+
 
 class TemplateEngine(object):
     """
@@ -36,20 +38,49 @@ class TemplateEngine(object):
         """Returns the actual size of the given template taking a given boundary
         into account.
         """
-        if template.children:
-            return max(self._get_size_of_child(child) for child in template.children)
-        else:
-            return template.boundary
+        size = self.get_size_of_children(template.children)
+        size = self._get_multiple_of_boundary(size, template.boundary)
+        return size
+
+    def get_size_of_siblings(self, siblings):
+        # Siblings represent only a part of a template's children. Thus, their
+        # size is determined using padding before, padding after, and their size.
+        return sum(self.get_size_of_sibling(sibling) for sibling in siblings)
+
+    def get_size_of_sibling(self, sibling):
+        return (sibling.padding_before +
+                sibling.size +
+                sibling.padding_after)
+
+    def get_size_of_children(self, children):
+        # Calculates the size used by the children taking the offset into
+        # account. Summing up the sizes of the children is not accurate enough,
+        # because one of the children could be placed specifically using an
+        # offset.
+        if not children:
+            return 0
+        # Assumption: Maximum always reached at last children
+        last_children = children[-1]
+        # NOTE: Offset already contains the value of padding before.
+        size = (last_children.offset +
+                last_children.size +
+                last_children.padding_after)
+        return size
 
     def get_max_size(self, template):
         """Returns a template's maximum possible size depending on the offset of
         its successor or size of it's parent.
         """
-        from .properties import AutoSizeValueProperty
+        from .properties import AutoSizeValueProperty, OffsetValueProperty
 
         next_sibling = rightsibling(template)
-        if next_sibling:
+        if next_sibling and isinstance(next_sibling.offset_property,
+                                       OffsetValueProperty):
             return next_sibling.offset - template.offset
+        elif (next_sibling and template.parent and
+              not isinstance(template.parent.size_property, AutoSizeValueProperty)):
+            siblings = rightsiblings(template)
+            return template.parent.size - self.get_size_of_siblings(siblings) - template.offset
         elif template.parent and not isinstance(template.parent.size_property,
                                                 AutoSizeValueProperty):
             return template.parent.size - template.offset
@@ -61,11 +92,6 @@ class TemplateEngine(object):
             return data.tell()
         else:
             return 0
-
-    def _get_size_of_child(self, child):
-        # NOTE: child.offset already contains the value of padding-before!!!
-        value = child.offset + child.size + child.padding_after
-        return self._get_multiple_of_boundary(value, child.parent.boundary)
 
     def _get_multiple_of_boundary(self, value, boundary):
         if boundary == 0:
