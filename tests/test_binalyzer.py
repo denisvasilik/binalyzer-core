@@ -178,6 +178,20 @@ def test_has_extension():
     assert id(mock) == id(binalyzer.extension('mock'))
 
 
+def test_count_array_access():
+    a = Template(name='a')
+    b = Template(name='b', parent=a)
+    b.count = 3
+
+    binalyzer = Binalyzer()
+    binalyzer.template = a
+
+    assert len(binalyzer.template.b) == 3
+    assert binalyzer.template.b[0].name == "b-0"
+    assert binalyzer.template.b[1].name == "b-1"
+    assert binalyzer.template.b[2].name == "b-2"
+
+
 class MockExtension(BinalyzerExtension):
 
     def __init__(self, binalyzer=None):

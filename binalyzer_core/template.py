@@ -41,6 +41,8 @@ class Template(NodeMixin, object):
         if children:
             self.children = children
 
+        self._count = ValueProperty(1)
+
         #: Parent of the template
         self.parent = parent
 
@@ -59,7 +61,6 @@ class Template(NodeMixin, object):
         #: :class:`~binalyzer.Boundary` of the template
         self._boundary = ValueProperty()
 
-        self._count = ValueProperty(1)
         self._signature = None
         self._hint = None
 

@@ -96,6 +96,11 @@ class BindingEngine(object):
         parent_children.extend(right)
 
         parent.children = parent_children
+        template_name = expandable.name.replace("-", "_")
+        parent.__dict__[template_name] = duplicates
+
+        for i in range(count):
+            del parent.__dict__[template_name + "_" + str(i)]
 
 
 class BindingContext(object):
