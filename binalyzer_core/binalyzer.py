@@ -32,7 +32,13 @@ class Binalyzer(object):
     """
 
     def __init__(self, template: Optional[Template] = None, data: Optional[io.IOBase] = None):
-        if template is None:
+        if data and template is None:
+            template = Template()
+            data.seek(0, 2)
+            template.size = data.tell()
+            data.seek(0)
+
+        if data is None and template is None:
             template = Template()
 
         if data is None:
