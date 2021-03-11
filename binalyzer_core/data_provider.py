@@ -43,11 +43,14 @@ class DataProvider(DataProviderBase):
         absolute_address = template.absolute_address
         size = template.size
         self.data.seek(absolute_address)
-        return self.data.read(size)
+        value = self.data.read(size)
+        self.data.seek(0)
+        return value
 
     def write(self, template, value):
         self.data.seek(template.absolute_address)
         self.data.write(value)
+        self.data.seek(0)
 
 
 class BufferedIODataProvider(DataProvider):
