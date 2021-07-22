@@ -63,6 +63,7 @@ class Template(NodeMixin, object):
 
         self._signature = None
         self._hint = None
+        self._text = None
 
     @property
     def offset(self):
@@ -198,12 +199,30 @@ class Template(NodeMixin, object):
         self.clear_cache(self.root)
 
     @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value
+        self.clear_cache(self.root)
+
+    @property
     def signature_property(self):
         return self._signature
 
     @signature_property.setter
     def signature_property(self, value):
         self._signature = value
+        self.clear_cache(self.root)
+
+    @property
+    def text_property(self):
+        return self._text
+
+    @text_property.setter
+    def text_property(self, value):
+        self._text = value
         self.clear_cache(self.root)
 
     @property
