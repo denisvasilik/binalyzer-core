@@ -173,6 +173,7 @@ class TemplateFactory(object):
 
         duplicate.signature = prototype.signature
         duplicate.hint = prototype.hint
+        duplicate.text = prototype.text
 
         for child in prototype.children:
             self.clone(child, parent=duplicate)
