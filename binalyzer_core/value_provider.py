@@ -5,7 +5,7 @@
 
     This module implements value providers.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 from .template_engine import TemplateEngine

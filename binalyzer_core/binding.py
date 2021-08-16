@@ -6,7 +6,7 @@
     This module implements the binding engine that is used to bind templates to
     binary streams.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 from .factory import TemplateFactory

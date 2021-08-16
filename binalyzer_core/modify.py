@@ -5,7 +5,7 @@
 
     This module implements modifiation functions for templates.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 from binalyzer_core.binding import (

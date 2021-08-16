@@ -5,7 +5,7 @@
 
     This module implements the mechanics of the template concept.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 from anytree.util import rightsibling

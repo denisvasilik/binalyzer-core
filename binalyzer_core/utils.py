@@ -5,7 +5,7 @@
 
     This module implements helper and utility functions.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 from anytree import NodeMixin

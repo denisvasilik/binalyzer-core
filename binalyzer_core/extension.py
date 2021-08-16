@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
 """
     binalyzer_core.extension
     ~~~~~~~~~~~~~~~~~~~~~~~~
 
     This module supports the creation of Binalyzer extensions.
+
+    :copyright: 2021 Denis Vasilík
+    :license: MIT
 """
 
 

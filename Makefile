@@ -35,7 +35,7 @@ upload-to-pypi: package
 	python3 -m twine upload --repository pypi dist/*
 
 clean:
-	(rm -rf pyflakes.log \
+	@(rm -rf pyflakes.log \
 		pylint.log \
 		test.log \
 		sloccount.sc \
@@ -47,6 +47,7 @@ clean:
 		docs/_build \
 	 	build \
 	 	dist \
-		cov_html)
+		cov_html \
+		.coverage)
 
 .PHONY: all clean sloc test flakes lint clone package install-from-test-pypi upload-to-test-pypi

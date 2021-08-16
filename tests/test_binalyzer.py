@@ -207,6 +207,119 @@ def test_count_array_access():
     assert binalyzer.template.b[2].name == "b-2"
 
 
+def test_no_template_provided_through_constructor():
+    data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44]))
+    binalyzer = Binalyzer(data=data)
+    assert binalyzer.template.size == 4
+
+
+def test_no_data_provided_through_constructor():
+    template = Template(name="a")
+    template.size = 7
+    binalyzer = Binalyzer(template=template)
+    assert binalyzer.template.size == 7
+    assert len(binalyzer.template.value) == 7
+    assert len(binalyzer.data.getvalue()) == 7
+
+
+def test_no_template_and_no_data_provided_through_constructor():
+    binalyzer = Binalyzer()
+    assert binalyzer.template.size == 0
+    assert len(binalyzer.data.getvalue()) == 0
+
+
+def test_template_and_data_provided_through_constructor_and_template_is_greater_than_data():
+    template = Template(name="a")
+    template.size = 7
+    data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44]))
+    binalyzer = Binalyzer(template, data)
+    assert binalyzer.template.size == 7
+    assert len(binalyzer.template.value) == 7
+    assert len(binalyzer.data.getvalue()) == 7
+
+
+def test_template_and_data_provided_through_constructor_and_template_equals_data():
+    template = Template(name="a")
+    template.size = 7
+    data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77]))
+    binalyzer = Binalyzer(template, data)
+    assert binalyzer.template.size == 7
+    assert len(binalyzer.data.getvalue()) == 7
+
+
+def test_template_and_data_provided_through_constructor_and_template_is_smaller_than_data():
+    template = Template(name="a")
+    template.size = 4
+    data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77]))
+    binalyzer = Binalyzer(template, data)
+    assert binalyzer.template.size == 4
+    assert len(binalyzer.template.value) == 4
+    assert len(binalyzer.data.getvalue()) == 7
+
+
+def test_no_data_but_template_provided_through_assignment_template_equals_data():
+    template = Template(name="a")
+    template.size = 4
+    data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44]))
+    binalyzer = Binalyzer(data=data)
+    binalyzer.template = template
+    assert binalyzer.template.size == 4
+    assert len(binalyzer.template.value) == 4
+    assert len(binalyzer.data.getvalue()) == 4
+
+
+def test_no_data_but_template_provided_through_assignment_template_is_smaller_than_data():
+    template = Template(name="a")
+    template.size = 4
+    data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]))
+    binalyzer = Binalyzer(data=data)
+    binalyzer.template = template
+    assert binalyzer.template.size == 4
+    assert len(binalyzer.template.value) == 4
+    assert len(binalyzer.data.getvalue()) == 8
+
+
+def test_no_data_but_template_provided_through_assignment_template_is_greater_than_data():
+    template = Template(name="a")
+    template.size = 16
+    data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]))
+    binalyzer = Binalyzer(data=data)
+    binalyzer.template = template
+    assert binalyzer.template.size == 16
+    assert len(binalyzer.template.value) == 16
+    assert len(binalyzer.data.getvalue()) == 16
+
+
+def test_no_template_but_data_provided_through_assignment_template_equals_data():
+    template = Template(name="a")
+    template.size = 4
+    binalyzer = Binalyzer(template)
+    binalyzer.data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44]))
+    assert binalyzer.template.size == 4
+    assert len(binalyzer.template.value) == 4
+    assert len(binalyzer.data.getvalue()) == 4
+
+
+def test_no_template_but_data_provided_through_assignment_template_is_smaller_than_data():
+    template = Template(name="a")
+    template.size = 4
+    binalyzer = Binalyzer(template)
+    binalyzer.data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77]))
+    assert binalyzer.template.size == 4
+    assert len(binalyzer.template.value) == 4
+    assert len(binalyzer.data.getvalue()) == 7
+
+
+def test_no_template_but_data_provided_through_assignment_template_is_greater_than_data():
+    template = Template(name="a")
+    template.size = 12
+    binalyzer = Binalyzer(template)
+    binalyzer.data = io.BytesIO(bytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77]))
+    assert binalyzer.template.size == 12
+    assert len(binalyzer.template.value) == 12
+    assert len(binalyzer.data.getvalue()) == 12
+
+
 class MockExtension(BinalyzerExtension):
     def __init__(self, binalyzer=None):
         self.disposed = False

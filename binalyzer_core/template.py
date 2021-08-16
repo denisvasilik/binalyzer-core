@@ -5,7 +5,7 @@
 
     This module implements the template.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 from anytree import NodeMixin
@@ -16,7 +16,6 @@ from .properties import (
     OffsetValueProperty,
     AutoSizeValueProperty,
     RelativeOffsetValueProperty,
-    ReferenceProperty,
 )
 
 
@@ -205,6 +204,8 @@ class Template(NodeMixin, object):
     @text.setter
     def text(self, value):
         self._text = value
+        if value and isinstance(self.size_property, AutoSizeValueProperty):
+            self.size_property = ValueProperty(len(value))
         self.clear_cache(self.root)
 
     @property

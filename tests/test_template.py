@@ -167,3 +167,52 @@ def test_auto_size_on_value_assignment():
     assert template_a.size == 4
     assert template_b.size == 4
     assert binalyzer.template.size == 8
+
+
+def test_auto_size_on_text_assignment():
+    binalyzer = Binalyzer()
+    template_a = Template('a', parent=binalyzer.template_provider.template)
+    template_a.text = bytes([0x01] * 4)
+    template_b = Template('b', parent=binalyzer.template_provider.template)
+    template_b.text = bytes([0x02] * 4)
+    assert template_a.text == bytes([0x01] * 4)
+    assert template_a.size == 4
+    assert template_b.text == bytes([0x02] * 4)
+    assert template_b.size == 4
+    assert binalyzer.template.size == 8
+
+
+def test_size_of_value_assignment_overrides_size_of_text_assignment():
+    binalyzer = Binalyzer()
+    template_a = Template('a', parent=binalyzer.template_provider.template)
+    template_a.text = bytes([0x01] * 4)
+    template_a.value = bytes([0x03] * 8)
+    template_b = Template('b', parent=binalyzer.template_provider.template)
+    template_b.text = bytes([0x02] * 4)
+    template_b.value = bytes([0x04] * 8)
+    assert template_a.text == bytes([0x01] * 4)
+    assert template_a.value == bytes([0x03] * 8)
+    assert template_a.size == 8
+    assert template_b.text == bytes([0x02] * 4)
+    assert template_b.value == bytes([0x04] * 8)
+    assert template_b.size == 8
+    assert binalyzer.template.size == 16
+
+
+def test_size_attribute_overrides_size_of_text_assignment():
+    binalyzer = Binalyzer()
+    template_a = Template('a', parent=binalyzer.template_provider.template)
+    template_a.text = bytes([0x01] * 4)
+    template_a.value = bytes([0x03] * 8)
+    template_a.size = 4
+    template_b = Template('b', parent=binalyzer.template_provider.template)
+    template_b.text = bytes([0x02] * 4)
+    template_b.value = bytes([0x04] * 8)
+    template_b.size = 4
+    assert template_a.text == bytes([0x01] * 4)
+    assert template_a.value == bytes([0x03] * 4)
+    assert template_a.size == 4
+    assert template_b.text == bytes([0x02] * 4)
+    assert template_b.value == bytes([0x04] * 4)
+    assert template_b.size == 4
+    assert binalyzer.template.size == 8

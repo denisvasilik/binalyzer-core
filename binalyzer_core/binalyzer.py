@@ -5,7 +5,7 @@
 
     This module implements the central Binalyzer object.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 import io
@@ -14,8 +14,11 @@ from typing import Optional
 
 from .binding import BindingContext
 from .template_provider import TemplateProvider
-from .data_provider import DataProvider
 from .template import Template
+from .data_provider import (
+    DataProvider,
+    ZeroedDataProvider,
+)
 from .modify import (
     transform,
     project,
@@ -33,12 +36,12 @@ class Binalyzer(object):
 
     def __init__(self, template: Optional[Template] = None, data: Optional[io.IOBase] = None):
         if data and template is None:
-            template = Template()
             data.seek(0, 2)
+            template = Template()
             template.size = data.tell()
             data.seek(0)
-
-        if data is None and template is None:
+        
+        if template is None:
             template = Template()
 
         if data is None:
@@ -68,7 +71,18 @@ class Binalyzer(object):
         """A :class:`~binalyzer.template.Template` that is bound to the
         corresponding binary :attr:`~binalyzer.Binalyzer.data`.
         """
-        return self._binding_context.template
+        template = self._binding_context.template
+        data_size = len(self.data_provider.data.getvalue())
+        template_size = self._binding_context.template.size
+
+        if (data_size == 0):
+            self.data_provider = ZeroedDataProvider(template_size)
+        elif (data_size < template_size):
+            extension_size = template_size - data_size
+            self.data_provider.data.seek(0, 2)
+            self.data_provider.data.write(bytes(extension_size * [0x00]))
+
+        return template
 
     @template.setter
     def template(self, value: Template):

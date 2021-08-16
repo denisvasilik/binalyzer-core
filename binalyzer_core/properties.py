@@ -5,7 +5,7 @@
 
     This module implements template properties.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 from anytree import findall_by_attr
@@ -16,7 +16,6 @@ from .value_provider import (
     AutoSizeValueProvider,
     OffsetValueProvider,
     RelativeOffsetValueProvider,
-    RelativeOffsetReferenceValueProvider,
     StretchSizeValueProvider,
 )
 

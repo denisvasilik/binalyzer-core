@@ -5,7 +5,7 @@
 
     The core package of the Binalyzer library.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT, see LICENSE for details.
 """
 

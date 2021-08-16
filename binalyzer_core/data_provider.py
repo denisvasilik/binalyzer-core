@@ -5,7 +5,7 @@
 
     This module implements basic data providers for binary streams.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 import io

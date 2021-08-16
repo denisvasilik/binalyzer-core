@@ -5,7 +5,7 @@
 
     This module implements basic template providers.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 

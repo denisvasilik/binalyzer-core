@@ -5,7 +5,7 @@
 
     This module implements factories used for cloning types.
 
-    :copyright: 2020 Denis Vasilík
+    :copyright: 2021 Denis Vasilík
     :license: MIT
 """
 from .properties import (
