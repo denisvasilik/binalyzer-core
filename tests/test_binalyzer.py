@@ -17,6 +17,7 @@ from binalyzer_core import (
     PlainTemplateProvider,
     ZeroedDataProvider,
     Template,
+    ReferenceProperty,
 )
 
 
@@ -318,6 +319,70 @@ def test_no_template_but_data_provided_through_assignment_template_is_greater_th
     assert binalyzer.template.size == 12
     assert len(binalyzer.template.value) == 12
     assert len(binalyzer.data.getvalue()) == 12
+
+
+def test_invalidate_dom_cache_on_count_property_assignment():
+    binalyzer = Binalyzer()
+    template_root = binalyzer.template
+    template_root.name = "root"
+    template_header = Template(name="header", parent=template_root)
+    template_header.value = bytes([0x02])
+    template_fields = Template(name="fields", parent=template_root)
+    template_field = Template(name="field", parent=template_fields)
+    template_field.size = 2
+    template_field.count_property = ReferenceProperty(template_field, "header")
+    assert binalyzer.template.size == 0x05
+    assert len(binalyzer.template.fields.children) == 0x02
+    assert len(binalyzer.template.value) == 0x05
+
+
+def test_invalidate_dom_cache_on_count_assignment():
+    binalyzer = Binalyzer()
+    template_root = binalyzer.template
+    template_root.name = "root"
+    template_header = Template(name="header", parent=template_root)
+    template_header.value = bytes([0x02])
+    template_fields = Template(name="fields", parent=template_root)
+    template_field = Template(name="field", parent=template_fields)
+    template_field.size = 2
+    template_field.count = 3
+    assert binalyzer.template.size == 0x07
+    assert len(binalyzer.template.fields.children) == 0x03
+    assert len(binalyzer.template.value) == 0x07
+
+
+def test_invalidate_dom_cache_on_count_property_reference_changed():
+    binalyzer = Binalyzer()
+    template_root = binalyzer.template
+    template_root.name = "root"
+    template_header = Template(name="header", parent=template_root)
+    template_header.value = bytes([0x02])
+    template_fields = Template(name="fields", parent=template_root)
+    template_field = Template(name="field", parent=template_fields)
+    template_field.size = 2
+    template_field.count_property = ReferenceProperty(template_field, "header")
+
+    # Create DOM from TOM (i.e. unrolls template field using count attribute)
+    template = binalyzer.template
+
+    # Change number of fields and assign new reference property to count 
+    # attribute. Note that this implicitly transforms the DOM to TOM.
+    template.fields.children = []
+    template_field = Template(name="field", parent=template.fields)
+    template_field.size = 2
+    template_field.count_property = ReferenceProperty(template_field, "header")
+
+    # Change referenced value
+    template.header.value = bytes([0x04])
+
+    assert binalyzer.template.size == 0x09
+    assert len(binalyzer.template.fields.children) == 0x04
+    assert len(binalyzer.template.value) == 0x09
+
+
+def test_ensure_template_copy_is_referenced_by_binalyzer_object():
+    binalyzer = Binalyzer()
+    assert id(binalyzer.template) == id(binalyzer.template_provider._template)
 
 
 class MockExtension(BinalyzerExtension):

@@ -13,6 +13,7 @@ from anytree import NodeMixin
 from .binding import BackedBindingContext
 from .properties import (
     ValueProperty,
+    ReferenceProperty,
     OffsetValueProperty,
     AutoSizeValueProperty,
     RelativeOffsetValueProperty,
@@ -160,6 +161,7 @@ class Template(NodeMixin, object):
     @count.setter
     def count(self, value):
         self._count.value = value
+        self.binding_context.invalidate()
 
     @property
     def count_property(self):
@@ -169,6 +171,7 @@ class Template(NodeMixin, object):
     def count_property(self, value):
         self._count = value
         self.clear_cache(self.root)
+        self.binding_context.invalidate()
 
     @property
     def hint(self):
