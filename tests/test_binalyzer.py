@@ -367,11 +367,7 @@ def test_invalidate_dom_cache_on_count_property_reference_changed():
 
     # Change number of fields and assign new reference property to count 
     # attribute. Note that this implicitly transforms the DOM to TOM.
-    template_fields = template.fields
-
-    for field in template_fields.children:
-        field.parent = None
-        
+    template.fields.children = []
     template_field = Template(name="field", parent=template.fields)
     template_field.size = 2
     template_field.count_property = ReferenceProperty(template_field, "header")
