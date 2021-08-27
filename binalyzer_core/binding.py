@@ -149,7 +149,7 @@ class BindingContext(object):
     def template(self, value):
         self.template_provider.template = value
         self.template_provider.template.binding_context = self
-        self._invalidate_dom()
+        self.invalidate()
 
     @property
     def data(self):
@@ -167,7 +167,7 @@ class BindingContext(object):
             for child in template.children:
                 child.binding_context = self
 
-    def _invalidate_dom(self):
+    def invalidate(self):
         self._cached_dom = None
 
     def _create_dom(self):
