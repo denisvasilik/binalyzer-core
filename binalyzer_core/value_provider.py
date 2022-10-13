@@ -115,13 +115,18 @@ class RelativeOffsetValueProvider(ValueProviderBase):
 class RelativeOffsetReferenceValueProvider(ValueProviderBase):
 
     def __init__(self, property):
+        self.byteorder = 'little'
         self._engine = TemplateEngine()
         super(RelativeOffsetReferenceValueProvider, self).__init__(property)
 
     @value_cache
     def get_value(self):
+        offset = int.from_bytes(
+            self.property.template.value,
+            self.byteorder,
+        )
         return (self._engine.get_offset(self.property.template) +
-                self.property.template.value)
+                offset)
 
     def set_value(self, value):
         self.clear_cache()

@@ -12,6 +12,7 @@ from anytree import NodeMixin
 
 from .binding import BackedBindingContext
 from .properties import (
+    RelativeOffsetReferenceProperty,
     ValueProperty,
     ReferenceProperty,
     OffsetValueProperty,
@@ -237,7 +238,8 @@ class Template(NodeMixin, object):
             return self.offset
 
         if (isinstance(self.offset_property, OffsetValueProperty) or
-                isinstance(self.offset_property, RelativeOffsetValueProperty)):
+                isinstance(self.offset_property, RelativeOffsetValueProperty) or
+                isinstance(self.offset_property, RelativeOffsetReferenceProperty)):
             if self.parent:
                 return self.offset + self.parent.absolute_address
             else:

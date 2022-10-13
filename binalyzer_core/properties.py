@@ -16,6 +16,7 @@ from .value_provider import (
     AutoSizeValueProvider,
     OffsetValueProvider,
     RelativeOffsetValueProvider,
+    RelativeOffsetReferenceValueProvider,
     StretchSizeValueProvider,
 )
 
@@ -124,7 +125,7 @@ class RelativeOffsetReferenceProperty(ReferenceProperty):
 
     def __init__(self, template, reference_name):
         super(RelativeOffsetReferenceProperty, self).__init__(
-            template, reference_name, RelativeOffsetValueProvider(self))
+            template, reference_name, RelativeOffsetReferenceValueProvider(self))
 
 
 class StretchSizeProperty(PropertyBase):
