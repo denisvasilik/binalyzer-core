@@ -121,12 +121,10 @@ class RelativeOffsetReferenceValueProvider(ValueProviderBase):
 
     @value_cache
     def get_value(self):
-        offset = int.from_bytes(
+        return int.from_bytes(
             self.property.template.value,
             self.byteorder,
         )
-        return (self._engine.get_offset(self.property.template) +
-                offset)
 
     def set_value(self, value):
         self.clear_cache()
