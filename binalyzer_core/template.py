@@ -234,7 +234,8 @@ class Template(NodeMixin, object):
     def absolute_address(self):
         """Provides the absolue address of the template within the binary stream.
         """
-        if (isinstance(self.offset_property, ValueProperty)):
+        if (isinstance(self.offset_property, ValueProperty) or
+            isinstance(self.offset_property, ReferenceProperty)):
             return self.offset
 
         if (isinstance(self.offset_property, OffsetValueProperty) or
